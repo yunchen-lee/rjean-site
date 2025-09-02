@@ -40,9 +40,15 @@ import Separator from "../components/Separator.astro";
       <!-- <a href="#" class="hover:text-black">
         <img src="/icons/fb.svg" alt="Facebook" class="w-8 h-8 " />
       </a> -->
-      <a href="mailto:yclee@arch.nycu.edu.tw" class="hover:text-black">
+      <!-- <a href="mailto:yclee@arch.nycu.edu.tw" class="hover:text-black">
         <img src="/icons/mail.svg" alt="Mail" class="w-8 h-8" />
-      </a>
+      </a> -->
+      <button
+        onclick="navigator.clipboard.writeText('yclee@arch.nycu.edu.tw'); alert('Email copied!');"
+        class="hover:text-black"
+      >
+        <img src="/icons/mail.svg" alt="Mail" class="w-8 h-8" />
+      </button>
 
     </div> 
 
