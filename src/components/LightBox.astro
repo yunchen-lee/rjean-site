@@ -99,10 +99,89 @@ const { images } = Astro.props;
 </style>
 
 
-
-
-
 <script is:inline>
+  function openLightbox(index) {
+    const lightbox = document.getElementById('lightbox');
+    const slides = document.querySelectorAll('.lightbox-slide');
+
+    slides.forEach(slide => slide.classList.add('hidden'));
+    const targetSlide = slides[index];
+    if (targetSlide) targetSlide.classList.remove('hidden');
+
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+  }
+
+  function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+      // 點擊 lightbox 背景時才關閉
+      // 將這段邏輯替換為下方的新邏輯
+      /*
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          closeLightbox();
+        }
+      });
+      */
+
+      // 點擊 lightbox 內任何位置都關閉
+      lightbox.addEventListener('click', closeLightbox);
+
+      // Esc 關閉（桌面用）
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+      });
+    }
+  });
+</script>
+
+<!-- <script is:inline>
+  function openLightbox(index) {
+    const lightbox = document.getElementById('lightbox');
+    const slides = document.querySelectorAll('.lightbox-slide');
+
+    slides.forEach(slide => slide.classList.add('hidden'));
+    const targetSlide = slides[index];
+    if (targetSlide) targetSlide.classList.remove('hidden');
+
+    lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+  }
+
+  function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+      // 點擊 lightbox 背景時才關閉
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) {
+          closeLightbox();
+        }
+      });
+
+      // Esc 關閉（桌面用）
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
+      });
+    }
+  });
+</script> -->
+
+
+
+<!-- <script is:inline>
   function openLightbox(index) {
     const lightbox = document.getElementById('lightbox');
     const slides = document.querySelectorAll('.lightbox-slide');
@@ -134,4 +213,4 @@ const { images } = Astro.props;
       });
     }
   });
-</script>
+</script> -->

@@ -23,10 +23,10 @@ export default function SwiperInit() {
         // 手機（<=640px）
         0: {
           grid: {
-            rows: 2,
+            rows: 1,
             fill: 'row',
           },
-          slidesPerView: 2,
+          slidesPerView: 1,
         }
       }
     });
