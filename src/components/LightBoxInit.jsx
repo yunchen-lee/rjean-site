@@ -19,6 +19,16 @@ export default function SwiperInit() {
         el: '.swiper-pagination',
         clickable: true,
       },
+      breakpoints: {
+        // 手機（<=640px）
+        0: {
+          grid: {
+            rows: 2,
+            fill: 'row',
+          },
+          slidesPerView: 2,
+        }
+      }
     });
     }, []);
 
