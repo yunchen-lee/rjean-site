@@ -11,6 +11,6 @@ export default defineConfig({
     vite: {
         plugins: [tailwindcss()]
     },
-    site: 'http://localhost:4321',
+    site: 'https://rjean.xyz',
     integrations: [preact(), mdx(), sitemap()]
 });
