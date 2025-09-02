@@ -1,0 +1,110 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Separator from "../../components/Separator.astro";
+
+export async function getStaticPaths() {
+  const blogs = await getCollection("blogs");
+
+  const paths = blogs.map((page: CollectionEntry<'blogs'>) => {
+      const [pathSegments] = page.id.split('/');
+      const finalSlug = pathSegments.replace(/\.mdx?$/, '');
+
+      return { params: {slug: finalSlug || undefined }, props: page };
+    });
+
+
+  return paths;
+}
+
+
+const { slug } = Astro.params;
+const page = Astro.props as CollectionEntry<'blogs'>;
+const { Content } = await render(page);
+import Prose from '../../components/Prose.astro';
+
+import LightBox from '../../components/LightBox.astro';
+
+
+const components = {
+  LightBox: LightBox
+};
+---
+
+
+<BaseLayout title={page.data.title}>
+  <section>
+    <header class="title-header">
+      <div>
+        <a class="back" href="/blog"> ⮤ back</a>
+        <!-- <span class="faded">/</span>
+        <a href={`/${nextpage.id}`}>Next page</a> -->
+      </div>
+      <h2>
+        {page.data.title}
+        <!-- <span class="faded">({page.data.description})</span> -->
+      </h2>
+      
+    </header>
+    <Separator />
+    <div class="lg:mt-6 hero-content grid gap-6 grid-cols-1 lg:grid-cols-5 gap-4">
+    
+      <div class="col-span-1"></div>
+      <div class="lg:col-span-4 my-2 flex flex-col">
+        <img
+            src={page.data.cover.src}
+            alt={page.data.cover.alt}
+            class="fade-in max-auto aspect-[5/3] object-cover rounded-sm"
+
+        />
+    
+        <div class="content content--blog pt-3 prose text-justify">
+            <!-- <Prose> -->
+                <dl>
+                <dt>{page.data.date.toISOString().split("T")[0]}</dt>
+                <dd>{page.data.tags.map(tag => tag).join(", ")}</dd>
+                </dl>
+            <!-- <h3>Info</h3> -->
+                <Content components={components}/>
+              
+
+                
+            <!-- </Prose> -->
+            
+        <!-- </div>
+        {
+            albums.length > 0 && (
+            <div class="albums">
+                <h3>Releases</h3>
+                <AlbumGrid albums={albums} />
+            </div>
+            )
+        }
+        </div> -->
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .content-wrap {
+    grid-template-areas: "img" "content" "albums";
+    grid-template-columns: 100%;
+    @media screen and (min-width: 44em) {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "img img" "content albums";
+    }
+    @media screen and (min-width: 50em) {
+      grid-template-columns: 30vw 1fr 170px;
+      grid-template-areas: "img content albums";
+    }
+  }
+  .albums {
+    grid-area: albums;
+  }
+  .content p:last-child {
+    margin-top: 2.5rem;
+    display: flex;
+  }
+</style>

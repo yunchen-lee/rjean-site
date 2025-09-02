@@ -1,0 +1,127 @@
+---
+import 'swiper/css';
+import 'swiper/css/grid';
+import 'swiper/css/pagination';
+import 'swiper/css/mousewheel';  // 滑鼠滾輪控制
+
+import LightBoxInit from './LightBoxInit.jsx'
+
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+
+interface ImageEntry {
+  src: ImageMetadata;
+  alt?: string;
+  caption?: string;
+}
+
+interface Props {
+  images: ImageEntry[];
+}
+
+const { images } = Astro.props;
+---
+
+<!-- Swiper -->
+<LightBoxInit client:load />
+<div class="swiper my-grid-swiper text-white my-8">
+    <div class="swiper-wrapper">
+    {images.map((img, index) => (
+    <div class="swiper-slide">
+        <Image src={img.src} alt={img.alt ?? ''} onclick={`openLightbox('${index}')`} class="cursor-pointer" />
+    </div>
+    ))}
+
+    </div>
+    <div class="swiper-pagination"></div>
+</div>
+
+
+<div id="lightbox" class="fixed inset-0 bg-white/95 flex items-center justify-center z-50 hidden cursor-pointer flex-col">
+  {images.map((img, index) => (
+    <div class="lightbox-slide hidden w-[70vw] h-[70vh] flex items-center justify-center flex-col">
+      <Image
+        src={img.src}
+        alt={img.alt ?? ''}
+        class="max-w-full max-h-full w-auto h-auto object-contain block mx-auto"
+      />
+      {img.caption && (
+        <div class="text-center text-black text-base">{img.caption}</div>
+      )}
+    </div>
+  ))}
+</div>
+
+
+
+<!-- Swiper CSS -->
+<style>
+    /* 容器不用強制 height:100%，避免整塊佔滿視窗造成額外空間 */
+.swiper {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 讓 Grid 自己排，slide 高度交給 aspect-ratio */
+.swiper-grid .swiper-slide { 
+  height: auto !important;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  /* 真正控制 4:3 的關鍵 */
+  aspect-ratio: 4 / 3;
+  background: #333; /* 需要的話保留 */
+}
+
+.swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  margin: 0;
+}
+
+</style>
+
+
+<style is:global>
+  :root {
+    --swiper-pagination-color: #ffffff;
+  }
+</style>
+
+
+
+<script is:inline>
+  function openLightbox(index) {
+    const lightbox = document.getElementById('lightbox');
+    const slides = document.querySelectorAll('.lightbox-slide');
+    
+    // 先全部隱藏
+    slides.forEach(slide => slide.classList.add('hidden'));
+    
+    // 顯示對應那張
+    const targetSlide = slides[index];
+    if (targetSlide) targetSlide.classList.remove('hidden');
+    
+    // 顯示整個 lightbox
+    lightbox.classList.remove('hidden');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+      lightbox.addEventListener('click', () => {
+        lightbox.classList.add('hidden');
+      });
+    }
+  });
+</script>

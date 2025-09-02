@@ -1,0 +1,95 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Separator from "../../components/Separator.astro";
+
+export async function getStaticPaths() {
+  const projects = await getCollection("projects");
+
+  const paths = projects.map((page: CollectionEntry<'projects'>) => {
+      const [pathSegments] = page.id.split('/');
+      const finalSlug = pathSegments.replace(/\.mdx?$/, '');
+
+      return { params: {slug: finalSlug || undefined }, props: page };
+    });
+
+
+  return paths;
+}
+
+
+const { slug } = Astro.params;
+const page = Astro.props as CollectionEntry<'projects'>;
+const { Content } = await render(page);
+
+import LightBox from '../../components/LightBox.astro';
+
+
+const components = {
+  LightBox: LightBox
+};
+---
+
+
+<BaseLayout title={page.data.title}>
+  <section>
+    <header class="title-header">
+      <div>
+        <a class="back" href="/"> ⮤ View all</a>
+        <!-- <span class="faded">/</span>
+        <a href={`/${nextpage.id}`}>Next page</a> -->
+      </div>
+      <h2>
+        {page.data.title}
+        <span class="faded">({page.data.subTitle})</span>
+      </h2>
+      
+    </header>
+    <Separator />
+    <div class="content-wrap">
+      <img
+        class="image fade-in"
+        src={page.data.cover.src}
+        alt={page.data.cover.alt}
+      />
+      <div class="content pt-3 prose text-justify">
+        <!-- <h3>Info</h3> -->
+        <Content components={components}/>
+        <dl>
+          <dt>Keywords</dt>
+          <dd>{page.data.tags.map(tag => tag).join(", ")}</dd>
+        </dl>
+      <!-- </div>
+      {
+        albums.length > 0 && (
+          <div class="albums">
+            <h3>Releases</h3>
+            <AlbumGrid albums={albums} />
+          </div>
+        )
+      }
+    </div> -->
+  </section>
+</BaseLayout>
+<style>
+  .content-wrap {
+    grid-template-areas: "img" "content" "albums";
+    grid-template-columns: 100%;
+    @media screen and (min-width: 44em) {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "img img" "content albums";
+    }
+    @media screen and (min-width: 50em) {
+      grid-template-columns: 30vw 1fr 170px;
+      grid-template-areas: "img content albums";
+    }
+  }
+  .albums {
+    grid-area: albums;
+  }
+  .content p:last-child {
+    margin-top: 2.5rem;
+    display: flex;
+  }
+</style>

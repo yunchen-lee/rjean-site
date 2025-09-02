@@ -1,0 +1,27 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  project: CollectionEntry<"projects">;
+};
+
+const { project } = Astro.props;
+---
+
+<a
+  href={`/projects/${project.id}`}
+  class="project"
+  style={`--image: url('${project.data.cover.src}');`}
+  data-title={project.data.title}
+  data-subTitle={project.data.subTitle}
+  data-astro-prefetch
+  aria-label={project.data.title}></a>
+
+<style>
+  a {
+    background-image: var(--image);
+    background-size: cover;
+    background-position: 50% 0%;
+    aspect-ratio: 1;
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import HorizontalCard from "../../components/HorizontalCard.astro"
+
+const title = "RJean - Blog";
+
+let posts = await getCollection("blogs", ({ data }) => data.state == "Published");
+
+posts = posts.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+
+---
+
+
+
+<BaseLayout title={title}>
+  <div class="content content--left">
+     <div class="mt-10 md:mt-0 mb-10">
+      <div class="text-3xl w-full font-bold">Blog</div>
+    </div>
+ 
+
+
+    <ul>
+      {posts.map((post) => (
+        <>
+          <HorizontalCard
+            title={post.data.title}
+            img={post.data.cover}
+            desc={post.data.description}
+            url={"/blog/"+post.id}
+            target="_self"
+            tags={post.data.tags}
+            date={post.data.date.toISOString().split("T")[0]}
+          />
+          <div class="divider my-0" />
+        </>
+      ))}
+    </ul>
+
+  </div>
+</BaseLayout>

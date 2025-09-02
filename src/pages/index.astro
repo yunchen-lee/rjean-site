@@ -1,16 +1,26 @@
 ---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectGrid from "../components/ProjectGrid.astro";
+import ProjectGridHeader from "../components/ProjectGridHeader.astro";
+import Preloader from "../components/Preloader.astro";
 
+let allProjects = await getCollection("projects");
+const projectsTotal = allProjects.length;
+const title = "RJean Lee - All projects";
+
+allProjects = allProjects.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title={title}>
+  <!-- 
+    The <Preloader /> component is used to preload all images on the homepage using the images.loaded.js script. 
+    If you don’t want to use the preloader (e.g., for faster page load times or if you don’t require preloading images), you can safely remove the <Preloader /> component from this layout.
+  -->
+  <Preloader />
+  <ProjectGridHeader projectsTotal={projectsTotal} />
+  <ProjectGrid projects={allProjects} />
+</BaseLayout>
+<script src="../scripts/index.js"></script>

@@ -1,0 +1,69 @@
+---
+import Separator from "../components/Separator.astro";
+---
+
+<div class="mt-20"></div>
+<Separator />
+<footer>
+  <!-- <p>
+    Based on the <a
+      href="https://dribbble.com/shots/25156320-Players-Club-UI-Animation"
+      >design</a
+    > by <a href="https://alextkachev.com/">Alex Tkachev</a>. Coded in <a
+      href="https://astro.build/">Astro 5.2</a
+    > by <a href="https://www.codrops.com">Codrops</a>.
+  </p>
+  <p>
+    Browse the <a href="https://github.com/crnacura/PlayersClub">GitHub repo</a
+    >. Read the <a href="https://tympanus.net/codrops/?p=86632">article</a>.
+  </p> -->
+
+
+  <div class="container mx-auto flex flex-col items-center space-y-4">
+    <!-- 社群 icons -->
+    <div class="flex space-x-6">
+      <a href="#" class="hover:text-black">
+        <img src="/icons/github.svg" alt="GitHub" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/linkedin.svg" alt="Linkin" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/medium.svg" alt="Medium" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/ins.svg" alt="Instagram" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/x.svg" alt="X" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/fb.svg" alt="Facebook" class="w-8 h-8 " />
+      </a>
+      <a href="#" class="hover:text-black">
+        <img src="/icons/mail.svg" alt="Mail" class="w-8 h-8 " />
+      </a>
+    </div> 
+
+    <!-- 文字版權 -->
+    <div class="text-sm">
+      Yun-Chen Lee © 2025 :: Powered by 
+      <a href="#" class="hover:text-white">Astro</a>
+    </div>
+  </div>
+
+
+</footer>
+<style>
+  footer {
+    padding: 2rem 0;
+    margin: 40px 0;
+  }
+  p {
+    margin: 0;
+    font-weight: bold;
+    line-height: 1.4;
+    text-align: center;
+    color: var(--color-text-alt);
+  }
+</style>

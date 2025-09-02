@@ -1,0 +1,45 @@
+---
+import Separator from "./Separator.astro";
+
+
+const { title, img, desc, url, badge="", tags, target = "_blank", date } = Astro.props;
+// import { Image } from "astro:assets";
+
+// 同時支援 string 或 {src, alt}
+const imageSrc = typeof img === "string" ? img : img?.src;
+const imageAlt = (typeof img === "object" && img?.alt) ? img.alt : title;
+const tag_url = url.split("/").slice(0, -1).join("/") + "/tag";
+---
+
+<div
+  class="mb-5 bg-base-100 rounded-sm hover:bg-gray-50 transition ease-in-out hover:scale-[101%] hover:opacity-80"
+>
+  <a href={url} target={target}>
+    <div class="hero-content grid gap-6 grid-cols-1 lg:grid-cols-3 gap-4">
+       <div class="">
+            <img
+            src={imageSrc}
+            alt={title}
+            class="w-full aspect-[2/1] object-cover rounded-sm "
+            loading="lazy" decoding="async"
+            />
+        </div>
+      <div class="lg:col-span-2 my-2 flex flex-col">
+            <h1 class="mb-2 lg:mb-0 text-xl/6 font-bold lg:line-clamp-1">{title}</h1>
+            <p class="text-sm text-gray-400">{tags.map(tag => tag).join(", ")}</p>
+
+            <p class="my-2 text-sm line-clamp-2">{desc}</p>
+            <!-- <div class="flex flex-wrap gap-2 justify-start"> -->
+            <!-- {tags && tags.map(tag => (
+                <a href={`${tag_url}/${tag}`} class="badge badge-outline">{tag}</a>
+            ))} -->
+            <!-- </div> -->
+            <p class="text-sm text-gray-400 mt-auto">{date}</p>
+        </div>
+    </div>
+  </a>
+  
+</div>
+<div class="my-5">
+    <Separator />
+  </div>
