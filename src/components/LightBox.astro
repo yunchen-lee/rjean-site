@@ -38,7 +38,7 @@ const { images } = Astro.props;
 </div>
 
 
-<div id="lightbox" class="fixed inset-0 bg-white/95 flex items-center justify-center z-50 hidden cursor-pointer flex-col">
+<div id="lightbox" class="fixed inset-0 bg-white/95 items-center justify-center z-50 hidden cursor-pointer flex-col">
   {images.map((img, index) => (
     <div class="lightbox-slide hidden w-[70vw] h-[70vh] flex items-center justify-center flex-col">
       <Image
@@ -100,27 +100,37 @@ const { images } = Astro.props;
 
 
 
+
+
 <script is:inline>
   function openLightbox(index) {
     const lightbox = document.getElementById('lightbox');
     const slides = document.querySelectorAll('.lightbox-slide');
-    
-    // 先全部隱藏
+
     slides.forEach(slide => slide.classList.add('hidden'));
-    
-    // 顯示對應那張
     const targetSlide = slides[index];
     if (targetSlide) targetSlide.classList.remove('hidden');
-    
-    // 顯示整個 lightbox
+
+    // 顯示
     lightbox.classList.remove('hidden');
+    lightbox.classList.add('flex');
+  }
+
+  function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('hidden');
+    lightbox.classList.remove('flex');
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     const lightbox = document.getElementById('lightbox');
     if (lightbox) {
-      lightbox.addEventListener('click', () => {
-        lightbox.classList.add('hidden');
+      // 點任何地方關閉
+      lightbox.addEventListener('click', closeLightbox);
+
+      // Esc 關閉（可選）
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeLightbox();
       });
     }
   });
