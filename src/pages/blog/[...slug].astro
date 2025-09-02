@@ -37,7 +37,7 @@ const components = {
   <section>
     <header class="title-header">
       <div>
-        <a class="back" href="/blog"> ↖&nbsp;&nbsp;back to blog</a>
+        <a class="back" href="/blog">back to blog</a>
         <!-- <span class="faded">/</span>
         <a href={`/${nextpage.id}`}>Next page</a> -->
       </div>
@@ -107,4 +107,9 @@ const components = {
     margin-top: 2.5rem;
     display: flex;
   }
+
+  .back::before {
+      content: "\2190";
+      margin-right: 0.25rem; /* 控制和文字的間距 */
+    }
 </style>
