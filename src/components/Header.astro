@@ -32,16 +32,17 @@ const activeRoute = routes[currentPath] || null;
     </li>
     <li>
       <a
-        href="/about/"
-        class={activeRoute === "About" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="About" /></a>
-    </li>
-    <li>
-      <a
         href="/blog/"
         class={activeRoute === "Blog" ? "current" : ""}
         data-astro-prefetch><TextSlider content="Blog" /></a>
     </li>
+    <li>
+      <a
+        href="/about/"
+        class={activeRoute === "About" ? "current" : ""}
+        data-astro-prefetch><TextSlider content="About" /></a>
+    </li>
+    
     <!-- <li>
       <a
         href="/contact/"
