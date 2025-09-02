@@ -10,7 +10,8 @@ const imageSrc = typeof img === "string" ? img : img?.src;
 const imageAlt = (typeof img === "object" && img?.alt) ? img.alt : title;
 const tag_url = url.split("/").slice(0, -1).join("/") + "/tag";
 ---
-
+<Separator />
+<div class="my-5"></div>
 <div
   class="mb-5 bg-base-100 rounded-sm hover:bg-gray-50 transition ease-in-out hover:scale-[101%] hover:opacity-80"
 >
@@ -40,6 +41,6 @@ const tag_url = url.split("/").slice(0, -1).join("/") + "/tag";
   </a>
   
 </div>
-<div class="my-5">
-    <Separator />
+
+    
   </div>
