@@ -38,4 +38,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: deploy
-          force_orphan: true  # 每次覆蓋整個 deploy 分支
+          # force_orphan: true  # 每次覆蓋整個 deploy 分支
