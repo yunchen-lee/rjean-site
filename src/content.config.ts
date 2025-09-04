@@ -12,6 +12,7 @@ const projects = defineCollection({
       src: z.string(),
       alt: z.string(),
     }),
+    status: z.string()
   }),
 });
  
