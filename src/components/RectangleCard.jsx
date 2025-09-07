@@ -35,7 +35,7 @@ export default function RectangleCard({
             <p class="my-2 text-xs line-clamp-2">{desc}</p>
 
             {/* 只有在 lg: 顯示日期（可依需求保留/移除） */}
-            <p class="hidden lg:block text-xs text-gray-400 mt-auto">{date}</p>
+            <p class=" text-xs text-gray-400 mt-auto">{date}</p>
           </div>
         </div>
       </a>
