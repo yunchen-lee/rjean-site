@@ -1,4 +1,51 @@
 ---
+// ProjectCard.astro
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  project: CollectionEntry<"projects">;
+};
+
+const { project } = Astro.props;
+
+// 盡量帶上寬高，幫助瀏覽器計算布局，降低 CLS（若沒有也可拿掉）
+const cover = project.data.cover;
+// const w = cover?.width;
+// const h = cover?.height;
+---
+
+<a
+  href={`/projects/${project.id}`}
+  class="project"
+  data-title={project.data.title}
+  data-subTitle={project.data.subTitle}
+  data-astro-prefetch
+  aria-label={project.data.title}
+>
+  <img
+    src={project.data.cover.src}
+    alt={project.data.title}
+    loading="lazy"
+    decoding="async"
+    class="thumb"
+  />
+</a>
+
+<style>
+  .project {
+    display: block;
+  }
+  .thumb {
+    display: block;
+    width: 100%;
+    /* 與原本 aspect-ratio: 1 一致（正方形格） */
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: 50% 0%;
+  }
+</style>
+
+<!-- ---
 import type { CollectionEntry } from "astro:content";
 
 type Props = {
@@ -24,4 +71,4 @@ const { project } = Astro.props;
     background-position: 50% 0%;
     aspect-ratio: 1;
   }
-</style>
+</style> -->
