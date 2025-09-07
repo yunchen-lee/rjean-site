@@ -2,9 +2,11 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
-import HorizontalCard from "../../components/HorizontalCard.astro"
+// import HorizontalCard from "../../components/HorizontalCard.astro"
+import BlogList from "../../components/BlogList.jsx";
 
-const title = "RJean - Blog";
+
+const title = "RJean | Blog";
 
 let posts = await getCollection("blogs", ({ data }) => data.state == "Published");
 
@@ -14,9 +16,18 @@ posts = posts.sort(
 
 ---
 
-
-
 <BaseLayout title={title}>
+  <div class="content content--left">
+    <div class="mt-10 md:mt-0 mb-10">
+      <div class="text-3xl w-full font-bold">Blog</div>
+    </div>
+
+    <BlogList posts={posts} client:load />
+  </div>
+</BaseLayout>
+
+
+<!-- <BaseLayout title={title}>
   <div class="content content--left">
      <div class="mt-10 md:mt-0 mb-10">
       <div class="text-3xl w-full font-bold">Blog</div>
@@ -42,4 +53,4 @@ posts = posts.sort(
     </ul>
 
   </div>
-</BaseLayout>
+</BaseLayout> -->

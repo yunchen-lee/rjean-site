@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 import WorkshopList from "../../components/WorkshopList.jsx";
 
-const title = "RJean - Blog";
+const title = "RJean | Workshops";
 
 let posts = await getCollection("workshops", ({ data }) => data.state == "Published");
 posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());

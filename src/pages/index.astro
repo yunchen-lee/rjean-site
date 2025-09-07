@@ -10,7 +10,7 @@ let allProjects = await getCollection("projects");
 allProjects = allProjects.filter((project) => project.data.status === "Published");
 
 const projectsTotal = allProjects.length;
-const title = "RJean Lee - All projects";
+const title = "RJean Lee | All projects";
 
 allProjects = allProjects.sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
