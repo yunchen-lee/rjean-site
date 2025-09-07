@@ -31,5 +31,20 @@ const blogs = defineCollection({
   }),
 });
 
+const workshops = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: "./src/content/workshops" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    cover: z.object({
+      src: z.string(),
+      alt: z.string(),
+    }),
+    tags: z.array(z.string()),
+    date: z.date(),
+    state: z.string()
+  }),
+});
+
 // Export all collections
-export const collections = {projects, blogs};
+export const collections = {projects, blogs, workshops};
