@@ -37,12 +37,11 @@ const components = {
     <header class="title-header">
       <div>
         <a class="back" href="/"> View all projects</a>
-        <!-- <span class="faded">/</span>
-        <a href={`/${nextpage.id}`}>Next page</a> -->
+
       </div>
       <h2>
         {page.data.title}
-        <span class="faded">({page.data.subTitle})</span>
+        <span class="faded leading-10">({page.data.subTitle})</span>
       </h2>
       
     </header>
@@ -56,20 +55,11 @@ const components = {
       <div class="content pt-3 prose text-justify">
         <!-- <h3>Info</h3> -->
         <Content components={components}/>
-        <dl>
-          <dt>Keywords</dt>
-          <dd>{page.data.tags.map(tag => tag).join(", ")}</dd>
+        <dl class="text-sm/5  lg:text-base/6">
+          <dt class="text-black">Keywords</dt>
+          <dd class="text-gray-400">{page.data.tags.map(tag => tag).join(", ")}</dd>
         </dl>
-      <!-- </div>
-      {
-        albums.length > 0 && (
-          <div class="albums">
-            <h3>Releases</h3>
-            <AlbumGrid albums={albums} />
-          </div>
-        )
-      }
-    </div> -->
+
   </section>
 </BaseLayout>
 <style>

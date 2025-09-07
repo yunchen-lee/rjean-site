@@ -1,5 +1,27 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import WorkshopList from "../../components/WorkshopList.jsx";
+
+const title = "RJean - Blog";
+
+let posts = await getCollection("workshops", ({ data }) => data.state == "Published");
+posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title={title}>
+  <div class="content content--left">
+    <div class="mt-10 md:mt-0 mb-10">
+      <div class="text-3xl w-full font-bold">Workshops</div>
+    </div>
+
+    <WorkshopList posts={posts} client:load />
+  </div>
+</BaseLayout>
+
+
+<!-- ---
+import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
 import RectangleCard from "../../components/RectangleCard.astro"
@@ -31,7 +53,7 @@ posts = posts.sort(
             title={post.data.title}
             img={post.data.cover}
             desc={post.data.description}
-            url={"/blog/"+post.id}
+            url={"/workshops/"+post.id}
             target="_self"
             tags={post.data.tags}
             date={post.data.date.toISOString().split("T")[0]}
@@ -42,4 +64,4 @@ posts = posts.sort(
     </div>
 
   </div>
-</BaseLayout>
+</BaseLayout> -->
