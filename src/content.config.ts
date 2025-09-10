@@ -40,6 +40,10 @@ const workshops = defineCollection({
       src: z.string(),
       alt: z.string(),
     }),
+    innerCover: z.object({
+      src: z.string(),
+      alt: z.string(),
+    }).optional(),
     tags: z.array(z.string()),
     date: z.date(),
     state: z.string()

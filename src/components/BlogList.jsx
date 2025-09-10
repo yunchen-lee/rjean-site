@@ -2,8 +2,8 @@ import { useState, useEffect } from "preact/hooks";
 import HorizontalCard from "./HorizontalCard.jsx";
 
 const STORAGE_KEY = "blog-visibleCount-v1";
-const STEP = 2;
-const MIN = 2;
+const STEP = 20;
+const MIN = 20;
 
 export default function BlogList({ posts }) {
   const [visibleCount, setVisibleCount] = useState(MIN);

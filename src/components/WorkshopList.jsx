@@ -2,8 +2,8 @@ import { useState, useEffect } from "preact/hooks";
 import RectangleCard from "./RectangleCard.jsx";
 
 const STORAGE_KEY = "workshops-visibleCount-v1";
-const STEP = 2;
-const MIN = 2;
+const STEP = 20;
+const MIN = 20;
 
 export default function WorkshopList({ posts }) {
   const [visibleCount, setVisibleCount] = useState(MIN);
