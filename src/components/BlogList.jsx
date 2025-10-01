@@ -43,7 +43,7 @@ export default function BlogList({ posts }) {
               title={post.data.title}
               img={post.data.cover}
               desc={post.data.description}
-              url={`/workshops/${post.id}`}
+              url={`/blog/${post.id}`}
               target="_self"
               tags={post.data.tags}
               date={post.data.date.toISOString().split("T")[0]}
