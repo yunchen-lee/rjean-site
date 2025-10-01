@@ -6,10 +6,118 @@
         href="/contact/"
         class={activeRoute === "Contact" ? "current" : ""}
         data-astro-prefetch><TextSlider content="Contact" /></a>
-    </li> --> </ul> </header> <hr data-astro-cid-jchhmuzl>    <section data-astro-cid-5uq7evlv> <header class="title-header" data-astro-cid-5uq7evlv> <div data-astro-cid-5uq7evlv> <a class="back" href="/" data-astro-cid-5uq7evlv> View all projects</a> </div> <h2 class="" data-astro-cid-5uq7evlv> Textile of Sound <span class="faded leading-6" data-astro-cid-5uq7evlv>(Fieldwork X Sound)</span> </h2> </header> <hr data-astro-cid-jchhmuzl>  <div class="content-wrap" data-astro-cid-5uq7evlv> <img class="image fade-in" src="/images/projects/textile-of-sound/cover.webp" alt="Textile of Sound" data-astro-cid-5uq7evlv> <div class="content pt-3 prose text-justify" data-astro-cid-5uq7evlv> <!-- <h3>Info</h3> --> <p>Amara Patel, known by her stage name Amarié, is an experimental R&amp;B artist whose hypnotic voice and genre-defying sound have redefined the boundaries of contemporary music. Born in London to a multicultural family, Amarié’s music draws from her diverse heritage, blending elements of traditional soul with electronic textures and avant-garde beats.</p>
-<p>Her debut album, <em>Ethereal Currents</em>, earned critical acclaim for its lush production and emotive storytelling. Themes of empowerment, identity, and vulnerability run through her lyrics, set against a sonic backdrop that’s as bold and captivating as her presence.</p>
-<p>Amarié’s live performances are immersive experiences, featuring haunting visuals and atmospheric soundscapes that transport her audience into another world. Offstage, she’s a passionate advocate for underrepresented voices in the music industry, working to create opportunities for emerging artists. With her fearless approach to artistry, Amarié is leading a new era of R&amp;B innovation.</p>
-<p>Amara Patel, known by her stage name Amarié, is an experimental R&amp;B artist whose hypnotic voice and genre-defying sound have redefined the boundaries of contemporary music. Born in London to a multicultural family, Amarié’s music draws from her diverse heritage, blending elements of traditional soul with electronic textures and avant-garde beats.</p> <dl class="text-sm/5  lg:text-base/6" data-astro-cid-5uq7evlv> <dt class="text-black" data-astro-cid-5uq7evlv>Keywords</dt> <dd class="text-gray-400" data-astro-cid-5uq7evlv>Fieldwork, Sound, Interactive design, Fabric, Cyanotype, Conductive Thread</dd> </dl> </div></div></section>  <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();</script><script>(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="ZsSN3z" component-url="/_astro/Back_to_top.BoSOgvuR.js" component-export="default" renderer-url="/_astro/client.Dw20T860.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;BackToTopButton&quot;,&quot;value&quot;:true}" await-children><button class="cursor-pointer fixed bottom-6 left-6 w-12 h-12 rounded-full bg-white text-white text-xl flex items-center justify-center shadow-lg transition-opacity duration-300 z-50  opacity-0 pointer-events-none" aria-label="Back to Top" style="-webkit-appearance:none;appearance:none;background-color:#ffffffff;"><img src="/assets/arrow.svg" alt="Back to Top" class="w-6 h-6"/></button><!--astro:end--></astro-island> <div class="mt-20" data-astro-cid-sz7xmlte></div> <hr data-astro-cid-jchhmuzl>  <footer data-astro-cid-sz7xmlte> <!-- <p>
+    </li> --> </ul> </header> <hr data-astro-cid-jchhmuzl>    <section data-astro-cid-5uq7evlv> <header class="title-header" data-astro-cid-5uq7evlv> <div data-astro-cid-5uq7evlv> <a class="back" href="/" data-astro-cid-5uq7evlv> View all projects</a> </div> <h2 class="" data-astro-cid-5uq7evlv> Textile of Sound <span class="faded leading-6" data-astro-cid-5uq7evlv>(Fieldwork X Sound)</span> </h2> </header> <hr data-astro-cid-jchhmuzl>  <div class="content-wrap" data-astro-cid-5uq7evlv> <img class="image fade-in" src="/images/projects/textile-of-sound/cover.webp" alt="Textile of Sound" data-astro-cid-5uq7evlv> <div class="content pt-3 prose text-justify" data-astro-cid-5uq7evlv> <!-- <h3>Info</h3> --> <h2 id="聲音織物--textile-of-sound">聲音織物 / Textile of Sound</h2>
+<ol>
+<li>
+<p>田野調查：請選擇新竹一個場所、一個族群，作為你田野觀察紀錄的對象。</p>
+</li>
+<li>
+<p>場所檔案：分析蒐集完的資料</p>
+</li>
+<li>
+<p>聲織影像：
+植物採集、氫版攝影織品製作
+從田野場所的行走過程中關注植物、辨識植物、連結地方、形成古老的手沖影像</p>
+</li>
+<li>
+<p>聲織物件；
+將搜集與場所有關的日常聲響，收於小型聲音播放模組電路板中，連結放大器，做出軟式播放器</p>
+</li>
+</ol>
+<p>這是一個人文與藝術交織的設計練習，在田野調查的過程中，離開紛擾的市區來到大風的竹東田間，在第一次來訪的時候瓦屋旁的黑狗狗和我打招呼，第二次我在撿樹葉的時候騎車經過的叔叔招呼說「今天這麼早阿！」，好突然變成當地人了！第三次坐在路邊俯瞰田野，把畫下的素描送給後面三合院的阿嬤，阿嬤看起來很開心。第四次有個認識(算認識嗎xd)的阿伯騎著小綿羊上了體感 45 度的斜坡，上去看了他一磚一瓦蓋的小房子和給登山客的涼亭，吃了超澀棗子和神秘果(兩個一起吃是甜的！)和熟透的柿子，越來越奇幻的探險。後來我把風聲錄下來，觸碰金黃色的田野就可以再次回到那天下午的竹東…。</p>
+<p><img src="/images/projects/textile-of-sound/5.webp" alt="image"/></p>
+<hr/>
+<h3 id="作品文本_家在九芎林">作品文本_家在九芎林</h3>
+<p>護岸樹叢、典型客家三向牆頭屋、王爺廟野台戲、新埔、供茶的涼亭、石提防、蔡頭寮、萬善堂、文昌廟</p>
+<p>門前一道清流/
+夾岸兩行垂柳/
+風景年年依舊/
+只有那流水/
+總是一去不回頭/
+請你莫把光陰帶走/</p>
+<p>放牛放到芒草崗/
+芒草密密不成行/
+阿哥高唱妹來答/
+喜鵲飛落結成雙/
+阿哥落落放牛郎/
+阿妹亭亭採茶娘/
+莫道哥短道情長/
+不限神仙羨鴛鴦/</p>
+<p>伯公廟溫先生/
+太陽西墜照他鄉/
+母牛攜子出池塘/
+喝酒要喝米酒頭/
+採花應採牡丹黃/</p>
+<hr/>
+<h3 id="聊聊_石坪林--碧潭">聊聊_石坪林 / 碧潭</h3>
+<p><img src="/images/projects/textile-of-sound/1.webp" alt="image"/></p>
+<h4 id="天穿日唱山歌">天穿日唱山歌</h4>
+<ol>
+<li>因為山丘之間距離太遠，與其走過去不如用唱的比較快</li>
+<li>不是因為功能性，而是因為娛樂而唱</li>
+<li>農村生活冬天無事</li>
+<li>天穿日諸事不宜，不如就唱歌</li>
+</ol>
+<h4 id="進台灣歷史">進台灣歷史</h4>
+<ol>
+<li>閩南人與客家人一批一批進台灣，先來的就先佔好位置，所以閩南人早到多居沿海跟腹地，客家人較晚更往裡面山地走</li>
+<li>客家人多散居無集村：因為地形起伏大，一批一批來就各自佔適合的地居住</li>
+<li>頭前溪北新豐竹北虎口，多軍事基地，連接桃園一帶，土地較貧脊；頭前溪南下山碧潭石坪林，往南種稻根漢做</li>
+</ol>
+<h4 id="建築">建築</h4>
+<ol>
+<li>因為往山上走水源取得更不易，所以會在房子旁邊搭建蓄水池</li>
+<li>房子都不朝北因為九降風大</li>
+<li>以前都用瓦片，後來年久失修且修復費用昂貴就改搭鐵皮</li>
+</ol>
+<hr/>
+<h3 id="聊聊_下山">聊聊_下山</h3>
+<p><img src="/images/projects/textile-of-sound/2.webp" alt="image"/></p>
+<ol>
+<li>梯田，山坡地，客家人以前在對岸就住在山上，所以很擅長開闢山地，甚至以前居住的地方比台灣貧瘠很多</li>
+<li>飛鳳山到梨頭山22k走九小時</li>
+<li>曾經下過一次冰雹，把屋瓦都打壞了
+4, 山上都是桂竹，本來就盛產桂竹，同時客家人也會種桂竹來擋風</li>
+</ol>
+<h4 id="下山">下山</h4>
+<p>下山有兩層意義，一是指飛鳳丘陵中橫亙在下山村北方的小岡阜，就叫下山，一是指下山村，是發鳳丘陵下山山麓下的倚山聚落，因下山而得名，上與下對稱，客家話稱上片(邊)、下片(邊)，位於上片的山稱上山，位於下片的稱下山，至於上下的標準，這裏很可能與頭前溪的上、下游有關。</p>
+<hr/>
+<h3 id="自然與人為邊界">自然與人為邊界</h3>
+<p><img src="/images/projects/textile-of-sound/3.webp" alt="image"/></p>
+<h4 id="房子上的奇怪植物-稻田與橘子-桂竹">房子上的奇怪植物 稻田與橘子 桂竹</h4>
+<ol>
+<li>植物形成邊界，植物圖鑑+地形，從自然森林地圖變成客家聚落演變地圖</li>
+<li>用人為邊界作為兩者的mapping工具</li>
+<li>田變成梯田</li>
+<li>河流變成上游與下游</li>
+<li>溪邊的良田與石頭山</li>
+<li>九降風翻過山吹下來</li>
+</ol>
+<h3 id="時間邊界">時間邊界</h3>
+<ol>
+<li>看老房子上的奇怪植物：附近一帶的屋瓦上都會有</li>
+<li>稻子與旱作：從近頭前溪南上游的良田開始，往上進石頭山後剩下旱作(橘子、茶葉、少數柿子)</li>
+<li>九芎林的由來：以前山上整片都是九芎樹，現在只剩文昌廟兩棵大的</li>
+</ol>
+<h3 id="地理邊界">地理邊界</h3>
+<ol>
+<li>梯田：高度邊界</li>
+<li>灌溉系統：大圳的流動</li>
+</ol>
+<h3 id="人為邊界">人為邊界</h3>
+<ol>
+<li>鄉鎮市行政劃分</li>
+<li>馬路類型</li>
+<li>稻田與都市交界處</li>
+</ol>
+<h3 id="聲音素描">聲音素描</h3>
+<h4 id="芎林-下山">芎林 下山</h4>
+<p>製作兩張地圖講述芎林下山的故事。</p>
+<p>兩張地圖分別紀錄了植物與地形，當兩者分開觀看時並無特別之處，但當兩張地圖以人為邊界互相映射，合在一起觀看時將顯現人的居住型態與風格。</p>
+<p>例如稻田將因為丘陵地而變成梯田，桂竹因為九降風翻過山吹下來而種植在住家的東北側，多肉植物不死鳥總是生長在破碎的屋瓦之間紀錄了老屋的位置…。</p>
+<p><img src="/images/projects/textile-of-sound/4.webp" alt="image"/></p>
+<p><img src="/images/projects/textile-of-sound/6.webp" alt="image"/>
+<img src="/images/projects/textile-of-sound/7.webp" alt="image"/></p> <dl class="text-sm/5  lg:text-base/6" data-astro-cid-5uq7evlv> <dt class="text-black" data-astro-cid-5uq7evlv>Keywords</dt> <dd class="text-gray-400" data-astro-cid-5uq7evlv>Fieldwork, Sound, Interactive design, Fabric, Cyanotype, Conductive Thread</dd> </dl> </div></div></section>  <style>astro-island,astro-slot,astro-static-slot{display:contents}</style><script>(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event("astro:load"));})();</script><script>(()=>{var A=Object.defineProperty;var g=(i,o,a)=>o in i?A(i,o,{enumerable:!0,configurable:!0,writable:!0,value:a}):i[o]=a;var d=(i,o,a)=>g(i,typeof o!="symbol"?o+"":o,a);{let i={0:t=>m(t),1:t=>a(t),2:t=>new RegExp(t),3:t=>new Date(t),4:t=>new Map(a(t)),5:t=>new Set(a(t)),6:t=>BigInt(t),7:t=>new URL(t),8:t=>new Uint8Array(t),9:t=>new Uint16Array(t),10:t=>new Uint32Array(t),11:t=>1/0*t},o=t=>{let[l,e]=t;return l in i?i[l](e):void 0},a=t=>t.map(o),m=t=>typeof t!="object"||t===null?t:Object.fromEntries(Object.entries(t).map(([l,e])=>[l,o(e)]));class y extends HTMLElement{constructor(){super(...arguments);d(this,"Component");d(this,"hydrator");d(this,"hydrate",async()=>{var b;if(!this.hydrator||!this.isConnected)return;let e=(b=this.parentElement)==null?void 0:b.closest("astro-island[ssr]");if(e){e.addEventListener("astro:hydrate",this.hydrate,{once:!0});return}let c=this.querySelectorAll("astro-slot"),n={},h=this.querySelectorAll("template[data-astro-template]");for(let r of h){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("data-astro-template")||"default"]=r.innerHTML,r.remove())}for(let r of c){let s=r.closest(this.tagName);s!=null&&s.isSameNode(this)&&(n[r.getAttribute("name")||"default"]=r.innerHTML)}let p;try{p=this.hasAttribute("props")?m(JSON.parse(this.getAttribute("props"))):{}}catch(r){let s=this.getAttribute("component-url")||"<unknown>",v=this.getAttribute("component-export");throw v&&(s+=` (export ${v})`),console.error(`[hydrate] Error parsing props for component ${s}`,this.getAttribute("props"),r),r}let u;await this.hydrator(this)(this.Component,p,n,{client:this.getAttribute("client")}),this.removeAttribute("ssr"),this.dispatchEvent(new CustomEvent("astro:hydrate"))});d(this,"unmount",()=>{this.isConnected||this.dispatchEvent(new CustomEvent("astro:unmount"))})}disconnectedCallback(){document.removeEventListener("astro:after-swap",this.unmount),document.addEventListener("astro:after-swap",this.unmount,{once:!0})}connectedCallback(){if(!this.hasAttribute("await-children")||document.readyState==="interactive"||document.readyState==="complete")this.childrenConnectedCallback();else{let e=()=>{document.removeEventListener("DOMContentLoaded",e),c.disconnect(),this.childrenConnectedCallback()},c=new MutationObserver(()=>{var n;((n=this.lastChild)==null?void 0:n.nodeType)===Node.COMMENT_NODE&&this.lastChild.nodeValue==="astro:end"&&(this.lastChild.remove(),e())});c.observe(this,{childList:!0}),document.addEventListener("DOMContentLoaded",e)}}async childrenConnectedCallback(){let e=this.getAttribute("before-hydration-url");e&&await import(e),this.start()}async start(){let e=JSON.parse(this.getAttribute("opts")),c=this.getAttribute("client");if(Astro[c]===void 0){window.addEventListener(`astro:${c}`,()=>this.start(),{once:!0});return}try{await Astro[c](async()=>{let n=this.getAttribute("renderer-url"),[h,{default:p}]=await Promise.all([import(this.getAttribute("component-url")),n?import(n):()=>()=>{}]),u=this.getAttribute("component-export")||"default";if(!u.includes("."))this.Component=h[u];else{this.Component=h;for(let f of u.split("."))this.Component=this.Component[f]}return this.hydrator=p,this.hydrate},e,this)}catch(n){console.error(`[astro-island] Error hydrating ${this.getAttribute("component-url")}`,n)}}attributeChangedCallback(){this.hydrate()}}d(y,"observedAttributes",["props"]),customElements.get("astro-island")||customElements.define("astro-island",y)}})();</script><astro-island uid="ZsSN3z" component-url="/_astro/Back_to_top.BoSOgvuR.js" component-export="default" renderer-url="/_astro/client.Dw20T860.js" props="{}" ssr client="load" opts="{&quot;name&quot;:&quot;BackToTopButton&quot;,&quot;value&quot;:true}" await-children><button class="cursor-pointer fixed bottom-6 left-6 w-12 h-12 rounded-full bg-white text-white text-xl flex items-center justify-center shadow-lg transition-opacity duration-300 z-50  opacity-0 pointer-events-none" aria-label="Back to Top" style="-webkit-appearance:none;appearance:none;background-color:#ffffffff;"><img src="/assets/arrow.svg" alt="Back to Top" class="w-6 h-6"/></button><!--astro:end--></astro-island> <div class="mt-20" data-astro-cid-sz7xmlte></div> <hr data-astro-cid-jchhmuzl>  <footer data-astro-cid-sz7xmlte> <!-- <p>
     Based on the <a
       href="https://dribbble.com/shots/25156320-Players-Club-UI-Animation"
       >design</a
