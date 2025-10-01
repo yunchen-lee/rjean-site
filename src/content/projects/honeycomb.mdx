@@ -9,15 +9,43 @@ cover:
 status: "Published"
 ---
 
+## Honeycomb 堆砌蜂巢體
 
-
-
-
-## 作品名稱
-Honeycomb 堆砌(蜂巢體)
-
----
-## 作品概念
-==整體的形成並不是因為個體之間的差異，而是來自於結構==
+#### 整體的形成並不是因為個體之間的差異，而是來自於結構
 自然界中最堅固也最有效率的形狀是六角形，六角形可以完全密鋪二維平面。由二維平面延伸至三維立體，自然界中使用六邊形最經典的莫過於蜂巢的結構，於是從蜂巢的結構延伸出一系列可密鋪於三維空間的形狀。
 在三維空間中的密鋪叫做「堆砌」，英文為「Honeycomb」，因此Honeycomb在這個計畫中有兩個意義，同時闡述這一系列形狀生成的源頭與對三維密鋪結構的演算。此次計畫將研究這一系列的形狀之間互相連結的關係，並經過蟻群演算創造形狀之間的結構風格，在三維空間中尋找Honeycomb的各種型態。
+
+由蜂巢產生可在三維堆砌的菱形十二面體，並延伸出一系列形狀。
+
+![image](/images/projects/honeycomb/1.webp)
+
+### 蟻群演算法
+蟻群演算法中使用兩張Graph，Graph_X描述形狀之間對應面的關係，一共有6種形狀與42個面，用於產生風格與堆砌。Graph_Y則是在堆砌的過程中，每一次新增形狀時決定要長在哪個舊有形狀。
+
+演算法有兩個步驟：(1) 10000隻螞蟻跑Graph_X，產生數種風格；(2)少量螞蟻跑已紀錄風格Graph_X，做形狀的堆砌
+
+Graph_X：
+42個面+六種形狀
+
+Graph_Y：
+first,last,min,max,
+random,close六種方法
+
+![image](/images/projects/honeycomb/2.webp)
+![image](/images/projects/honeycomb/3.webp)
+
+---
+
+### 經過蟻演算法，每種蟻群演化出自己偏好的結構堆疊方式
+
+在 Processing 創造的虛擬空間中蟻群根據偏好的結構風格推疊各式各樣的方塊，如平面、轉角、柱狀...。
+
+![image](/images/projects/honeycomb/4.webp)
+![image](/images/projects/honeycomb/5.webp)
+![image](/images/projects/honeycomb/6.webp)
+![image](/images/projects/honeycomb/7.webp)
+![image](/images/projects/honeycomb/8.webp)
+![image](/images/projects/honeycomb/9.webp)
+![image](/images/projects/honeycomb/10.webp)
+
+
