@@ -1,31 +1,28 @@
 ---
-import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ProjectGrid from "../components/ProjectGrid.astro";
-import ProjectGridHeader from "../components/ProjectGridHeader.astro";
-import Preloader from "../components/Preloader.astro";
+import { Image } from 'astro:assets';
+const title = "RJean Lee | Portfolio";
 
-let allProjects = await getCollection("projects");
+const totalImages = 23;
 
-allProjects = allProjects.filter((project) => project.data.status === "Published");
-
-const projectsTotal = allProjects.length;
-const title = "RJean Lee | All projects";
-
-allProjects = allProjects.sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
-);
-
-
+const imageNumbers = Array.from({ length: totalImages }, (_, i) => i + 1);
 ---
 
 <BaseLayout title={title}>
-  <!-- 
-    The <Preloader /> component is used to preload all images on the homepage using the images.loaded.js script. 
-    If you don’t want to use the preloader (e.g., for faster page load times or if you don’t require preloading images), you can safely remove the <Preloader /> component from this layout.
-  -->
-  <Preloader />
-  <ProjectGridHeader projectsTotal={projectsTotal} />
-  <ProjectGrid projects={allProjects} />
+
+<div class="my-10 space-y-6">
+    {
+      imageNumbers.map((num) => (
+        <Image 
+          src={`/images/portfolio/yclee-portfolio-${num}@2x.webp`} 
+          alt={`Portfolio page ${num}`} 
+          width="50" 
+          height="50" 
+          class="w-full md:w-4/5 h-auto mx-auto shadow-sm" 
+        />
+      ))
+    }
+  </div>
+</div>
+
 </BaseLayout>
-<script src="../scripts/index.js"></script>

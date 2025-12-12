@@ -6,11 +6,11 @@ import Separator from "../components/Separator.astro";
 const currentPath = Astro.url.pathname;
 // Define a map of routes
 const routes = {
-  "/": "Home",
-  "/releases/": "Releases",
-  "/store/": "Store",
-  "/history/": "History",
-  "/contact/": "Contact",
+  // "/": "Home",
+  "/projects/": "Projects",
+  "/Portfolio": "Portfolio",
+  "/workshops/": "Workshops",
+  "/cv/": "CV",
 };
 // Determine the active route
 const activeRoute = routes[currentPath] || null;
@@ -24,37 +24,39 @@ const activeRoute = routes[currentPath] || null;
   </h1>
   <span><TextSlider content="" /></span>
   <ul>
+
     <li>
       <a
         href="/"
+        class={activeRoute === "Portfolio" ? "current" : ""}
+        data-astro-prefetch><TextSlider content="Portfolio" /></a>
+    </li>
+    <!-- <li>
+      <a
+        href="/projects/"
         class={activeRoute === "Projects" ? "current" : ""}
         data-astro-prefetch><TextSlider content="Projects" /></a>
-    </li>
+    </li> -->
     <li>
       <a
         href="/workshops/"
         class={activeRoute === "Workshops" ? "current" : ""}
         data-astro-prefetch><TextSlider content="Workshops" /></a>
     </li>
-    <li>
+    <!-- <li>
       <a
         href="/blog/"
         class={activeRoute === "Blog" ? "current" : ""}
         data-astro-prefetch><TextSlider content="Blog" /></a>
-    </li>
+    </li> -->
     <li>
       <a
-        href="/about/"
-        class={activeRoute === "About" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="About" /></a>
+        href="/cv/"
+        class={activeRoute === "CV" ? "current" : ""}
+        data-astro-prefetch><TextSlider content="CV" /></a>
     </li>
-    
-    <!-- <li>
-      <a
-        href="/contact/"
-        class={activeRoute === "Contact" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="Contact" /></a>
-    </li> -->
+
+
   </ul>
 </header>
 <Separator />
