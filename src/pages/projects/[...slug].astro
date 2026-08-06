@@ -3,88 +3,63 @@ import type { CollectionEntry } from "astro:content";
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Separator from "../../components/Separator.astro";
+import LightBox from "../../components/LightBox.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
 
-  const paths = projects.map((page: CollectionEntry<'projects'>) => {
-      const [pathSegments] = page.id.split('/');
-      const finalSlug = pathSegments.replace(/\.mdx?$/, '');
+  const paths = projects.map((page: CollectionEntry<"projects">) => {
+    const [pathSegments] = page.id.split("/");
+    const finalSlug = pathSegments.replace(/\.mdx?$/, "");
 
-      return { params: {slug: finalSlug || undefined }, props: page };
-    });
-
+    return { params: { slug: finalSlug || undefined }, props: page };
+  });
 
   return paths;
 }
 
-
-const { slug } = Astro.params;
-const page = Astro.props as CollectionEntry<'projects'>;
+const page = Astro.props as CollectionEntry<"projects">;
 const { Content } = await render(page);
 
-import LightBox from '../../components/LightBox.astro';
-
-
 const components = {
-  LightBox: LightBox
+  LightBox,
 };
 ---
-
 
 <BaseLayout title={page.data.title}>
   <section>
     <header class="title-header">
       <div>
-        <a class="back" href="/"> View all projects</a>
-
+        <a class="back" href="/">View all projects</a>
       </div>
-      <h2 class="">
-        {page.data.title}
-        <span class="faded leading-6">({page.data.subTitle})</span>
-      </h2>
-      
+      <h2>{page.data.title}</h2>
     </header>
     <Separator />
-    <div class="content-wrap">
-      <img
-        class="image fade-in"
-        src={page.data.cover.src}
-        alt={page.data.cover.alt}
-      />
-      <div class="content pt-3 prose text-justify">
-        <!-- <h3>Info</h3> -->
-        <Content components={components}/>
-        <dl class="text-sm/5  lg:text-base/6">
-          <dt class="text-black">Keywords</dt>
-          <dd class="text-gray-400">{page.data.tags.map(tag => tag).join(", ")}</dd>
-        </dl>
+    <div class="lg:mt-6 hero-content grid gap-6 grid-cols-1 lg:grid-cols-5 gap-4">
+      <div class="col-span-1"></div>
+      <div class="lg:col-span-4 my-2 flex flex-col">
+        <img
+          src={page.data.cover.src}
+          alt={page.data.cover.alt}
+          class="fade-in max-auto aspect-[5/3] object-cover rounded-sm"
+        />
 
+        <div class="content content--blog pt-3 prose text-justify">
+          <Content components={components} />
+
+          <dl class="text-sm/5 lg:text-base/6 mt-6">
+            <dt class="text-black">Keywords</dt>
+            <dd class="text-gray-400">{page.data.tags.map((tag) => tag).join(", ")}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
   </section>
 </BaseLayout>
-<style>
-  .content-wrap {
-    grid-template-areas: "img" "content" "albums";
-    grid-template-columns: 100%;
-    @media screen and (min-width: 44em) {
-      grid-template-columns: 1fr auto;
-      grid-template-areas: "img img" "content albums";
-    }
-    @media screen and (min-width: 50em) {
-      grid-template-columns: 30vw 1fr 50px;
-      grid-template-areas: "img content albums";
-    }
-  }
-  .albums {
-    grid-area: albums;
-  }
-  .content p:last-child {
-    margin-top: 2.5rem;
-    display: flex;
-  }
-  .back::before {
-      content: "\2190";
-      margin-right: 0.25rem; /* 控制和文字的間距 */
-    }
 
+<style>
+  .back::before {
+    content: "\2190";
+    margin-right: 0.25rem;
+  }
 </style>

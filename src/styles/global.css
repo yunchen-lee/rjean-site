@@ -81,6 +81,14 @@
     --font-size-s: 0.85rem;
     --font-size-l: clamp(1.25rem, 3vw, 1.75rem);
     --font-size-xl: clamp(1.5rem, 5vw, 2.75rem);
+    --font-size-section-title: clamp(1.5rem, 2.2vw, 2rem);
+    --line-height-section-title: 1.1;
+    --font-size-card-title: 0.9rem;
+    --line-height-card-title: 1.25;
+    --font-size-card-body: 0.8rem;
+    --line-height-card-body: 1.55;
+    --font-size-card-meta: 0.72rem;
+    --line-height-card-meta: 1.4;
 }
 
 body {
@@ -100,9 +108,9 @@ body {
 }
 
 h2 {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-section-title);
     margin: 0;
-    line-height: 0.85;
+    line-height: var(--line-height-section-title);
 }
 
 h3 {

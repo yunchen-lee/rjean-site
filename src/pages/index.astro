@@ -1,28 +1,72 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { Image } from 'astro:assets';
-const title = "RJean Lee | Portfolio";
+import { getCollection } from "astro:content";
+import PortfolioCard from "../components/PortfolioCard.astro";
 
-const totalImages = 23;
+const title = "RJean Lee | Projects";
 
-const imageNumbers = Array.from({ length: totalImages }, (_, i) => i + 1);
+let projects = await getCollection("projects");
+projects = projects.filter(
+  (project) => project.data.status === "Published" && project.data.visible !== false
+);
+projects = projects.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
 ---
 
 <BaseLayout title={title}>
+  <section class="portfolio-index">
+    <div class="portfolio-index__intro">
+      <h2>Projects</h2>
+    </div>
 
-<div class="my-10 space-y-6">
-    {
-      imageNumbers.map((num) => (
-        <Image 
-          src={`/images/portfolio/yclee-portfolio-${num}@2x.webp`} 
-          alt={`Portfolio page ${num}`} 
-          width="50" 
-          height="50" 
-          class="w-full md:w-4/5 h-auto mx-auto shadow-sm" 
-        />
-      ))
-    }
-  </div>
-</div>
-
+    <div class="portfolio-grid">
+      {projects.map((project) => <PortfolioCard project={project} />)}
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .portfolio-index {
+    display: grid;
+    gap: 1.5rem;
+    margin: 2rem 0 5rem;
+  }
+
+  .portfolio-index__intro {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 42rem;
+  }
+
+  .portfolio-index__intro h2 {
+    margin: 0;
+  }
+
+  .portfolio-index__intro p {
+    margin: 0;
+    color: var(--color-text-alt);
+    line-height: 1.5;
+  }
+
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media screen and (min-width: 425px) {
+    .portfolio-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 728px) {
+    .portfolio-index {
+      width: 80%;
+      margin-top: 5rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+</style>

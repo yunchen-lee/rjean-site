@@ -38,7 +38,7 @@ export default function WorkshopList({ posts }) {
 
   return (
     <div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 gap-8">
         {posts.slice(0, visibleCount).map((post, idx) => (
           <RectangleCard
             key={post.id ?? idx}

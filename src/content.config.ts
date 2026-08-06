@@ -6,6 +6,7 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     subTitle: z.string(),
+    visible: z.boolean().default(true),
     tags: z.array(z.string()),
     date: z.date(),
     cover: z.object({
@@ -36,6 +37,7 @@ const workshops = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    visible: z.boolean().default(true),
     cover: z.object({
       src: z.string(),
       alt: z.string(),

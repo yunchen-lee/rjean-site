@@ -5,19 +5,50 @@ import WorkshopList from "../../components/WorkshopList.jsx";
 
 const title = "RJean | Workshops";
 
-let posts = await getCollection("workshops", ({ data }) => data.state == "Published");
+let posts = await getCollection(
+  "workshops",
+  ({ data }) => data.state == "Published" && data.visible !== false
+);
 posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
 
 <BaseLayout title={title}>
-  <div class="content content--left">
-    <div class="mt-10 md:mt-0 mb-10">
-      <div class="text-3xl w-full font-bold">Workshops</div>
+  <section class="workshops-index">
+    <div class="workshops-index__intro">
+      <h2>Workshops</h2>
     </div>
 
-    <WorkshopList posts={posts} client:load />
-  </div>
+    <div class="workshops-index__list">
+      <WorkshopList posts={posts} client:load />
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .workshops-index {
+    width: 100%;
+    margin: 2rem 0 5rem;
+  }
+
+  .workshops-index__intro {
+    margin-bottom: 1.5rem;
+  }
+
+  .workshops-index__intro h2 {
+    margin: 0;
+  }
+
+  .workshops-index__list {
+    width: 100%;
+  }
+
+  @media screen and (min-width: 728px) {
+    .workshops-index {
+      width: auto;
+      margin: 5rem 20vw 5rem;
+    }
+  }
+</style>
 
 
 <!-- ---

@@ -13,32 +13,105 @@ export default function RectangleCard({
   const imageAlt = typeof img === "object" && img?.alt ? img.alt : title;
 
   return (
-    <div class="mb-0 bg-base-100 hover:bg-gray-50 transition ease-in-out hover:scale-[101%] hover:opacity-80 border-1 border-gray-300 border-solid">
-      <a href={url} target={target}>
-        <div class="hero-content grid gap-2 grid-row-3 lg:grid-row-3">
-          <div>
+    <div class="workshop-card">
+      <a href={url} target={target} class="workshop-card__link">
+        <div class="workshop-card__inner">
+          <div class="workshop-card__media">
             <img
               src={imageSrc}
               alt={imageAlt}
-              class="w-full aspect-[2/1] object-cover"
+              class="workshop-card__image"
               loading="lazy"
               decoding="async"
             />
           </div>
 
-          <div class="row-span-2 lg:row-span-2 mx-4 mt-2 mb-4 flex flex-col">
-            <h1 class="text-base/5 mb-2 lg:mb-0 lg:text-lg/6 font-bold lg:line-clamp-1">
-              {title}
-            </h1>
-            <p class="text-xs text-gray-400">{(tags || []).join(", ")}</p>
-
-            <p class="my-2 text-xs line-clamp-2">{desc}</p>
-
-            {/* 只有在 lg: 顯示日期（可依需求保留/移除） */}
-            <p class=" text-xs text-gray-400 mt-auto">{date}</p>
+          <div class="workshop-card__body">
+            <h1 class="workshop-card__title">{title}</h1>
+            <p class="workshop-card__description">{desc}</p>
+            <p class="workshop-card__meta">{date}</p>
           </div>
         </div>
       </a>
+      <style>{`
+        .workshop-card {
+          border-bottom: 1px solid #000;
+        }
+
+        .workshop-card__link {
+          display: block;
+          color: inherit;
+          transition:
+            transform 0.5s ease,
+            opacity 0.5s ease;
+        }
+
+        .workshop-card__link:hover {
+          transform: translateY(-2px);
+          opacity: 0.75;
+          color: inherit;
+        }
+
+        .workshop-card__inner {
+          display: flex;
+          flex-direction: column;
+          gap: 0.85rem;
+          align-items: flex-start;
+          padding: 1rem 0 2.5rem;
+        }
+
+        .workshop-card__media {
+          width: 100%;
+        }
+
+        .workshop-card__image {
+          display: block;
+          width: 100%;
+          height: auto;
+          object-fit: cover;
+        }
+
+        .workshop-card__body {
+          display: flex;
+          flex-direction: column;
+          gap: 0.55rem;
+          min-width: 0;
+        }
+
+        .workshop-card__title {
+          margin: 0;
+          font-size: var(--font-size-card-title);
+          font-weight: 700;
+          line-height: var(--line-height-card-title);
+        }
+
+        .workshop-card__description {
+          margin: 0;
+          font-size: var(--font-size-card-body);
+          line-height: var(--line-height-card-body);
+          color: var(--color-text);
+        }
+
+        .workshop-card__meta {
+          margin: 0;
+          font-size: var(--font-size-card-meta);
+          line-height: var(--line-height-card-meta);
+          color: var(--color-text-alt);
+        }
+
+        @media screen and (min-width: 425px) {
+          .workshop-card__inner {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1rem;
+            align-items: start;
+          }
+
+          .workshop-card__media {
+            width: 80%;
+          }
+        }
+      `}</style>
     </div>
   );
 }

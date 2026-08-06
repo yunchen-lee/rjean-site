@@ -1,0 +1,71 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+type Props = {
+  project: CollectionEntry<"projects">;
+};
+
+const { project } = Astro.props;
+---
+
+<a
+  href={`/projects/${project.id}`}
+  class="portfolio-card"
+  data-astro-prefetch
+  aria-label={project.data.title}
+>
+  <img
+    src={project.data.cover.src}
+    alt={project.data.cover.alt}
+    loading="lazy"
+    decoding="async"
+    class="portfolio-card__image"
+  />
+  <div class="portfolio-card__body">
+    <h2 class="portfolio-card__title">{project.data.title}</h2>
+    <p class="portfolio-card__description">{project.data.subTitle}</p>
+  </div>
+</a>
+
+<style>
+  .portfolio-card {
+    display: grid;
+    gap: 0.75rem;
+    color: inherit;
+    transition:
+      transform 0.5s ease,
+      opacity 0.5s ease;
+  }
+
+  .portfolio-card:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+    color: inherit;
+  }
+
+  .portfolio-card__image {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    object-position: center;
+    background: var(--color-placeholder);
+  }
+
+  .portfolio-card__body {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .portfolio-card__title {
+    margin: 0;
+    font-size: var(--font-size-card-title);
+    line-height: var(--line-height-card-title);
+  }
+
+  .portfolio-card__description {
+    margin: 0;
+    color: var(--color-text-alt);
+    line-height: 1.35;
+    font-size: var(--font-size-card-body);
+  }
+</style>

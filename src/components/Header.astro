@@ -2,61 +2,51 @@
 import TextSlider from "../components/TextSlider.astro";
 import Separator from "../components/Separator.astro";
 
-// Get the current pathname
 const currentPath = Astro.url.pathname;
-// Define a map of routes
 const routes = {
-  // "/": "Home",
-  "/projects/": "Projects",
-  "/Portfolio": "Portfolio",
+  "/": "Projects",
   "/workshops/": "Workshops",
   "/cv/": "CV",
 };
-// Determine the active route
+
 const activeRoute = routes[currentPath] || null;
 ---
 
 <header>
-
   <h1>
-    <a href="/" class={activeRoute === "Home" ? "current" : ""}
-      ><TextSlider content=" (¦3[▓▓]=)" /></a>
+    <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
+      <TextSlider content=" (¦3[▓▓]=) RJean Lee" />
+    </a>
   </h1>
   <span><TextSlider content="" /></span>
   <ul>
-
     <li>
       <a
         href="/"
-        class={activeRoute === "Portfolio" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="Portfolio" /></a>
-    </li>
-    <!-- <li>
-      <a
-        href="/projects/"
         class={activeRoute === "Projects" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="Projects" /></a>
-    </li> -->
-    <!-- <li>
+        data-astro-prefetch
+      >
+        <TextSlider content="Projects" />
+      </a>
+    </li>
+    <li>
       <a
         href="/workshops/"
         class={activeRoute === "Workshops" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="Workshops" /></a>
-    </li> -->
-    <!-- <li>
-      <a
-        href="/blog/"
-        class={activeRoute === "Blog" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="Blog" /></a>
-    </li> -->
+        data-astro-prefetch
+      >
+        <TextSlider content="Workshops" />
+      </a>
+    </li>
     <li>
       <a
         href="/cv/"
         class={activeRoute === "CV" ? "current" : ""}
-        data-astro-prefetch><TextSlider content="CV" /></a>
+        data-astro-prefetch
+      >
+        <TextSlider content="CV" />
+      </a>
     </li>
-
-
   </ul>
 </header>
 <Separator />
@@ -65,7 +55,7 @@ const activeRoute = routes[currentPath] || null;
   header {
     position: relative;
     display: grid;
-    grid-template-columns: min-content auto;
+    grid-template-columns: min-content 1fr auto;
     font-weight: 700;
     padding: 1rem 0;
     gap: 1rem;
@@ -84,11 +74,11 @@ const activeRoute = routes[currentPath] || null;
     gap: 1rem;
     margin: 0;
     padding: 0;
-    grid-column: auto / span 2;
+    justify-self: end;
   }
   @media screen and (min-width: 50em) {
     header {
-      grid-template-columns: 20vw 1fr auto auto;
+      grid-template-columns: 20vw 1fr auto;
     }
   }
 </style>

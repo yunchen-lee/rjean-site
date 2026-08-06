@@ -13,7 +13,7 @@ export default function HorizontalCard({
   const imageAlt = (typeof img === "object" && img?.alt) ? img.alt : title;
 
   return (
-    <div class="mb-5 bg-base-100 rounded-sm hover:bg-gray-50 transition ease-in-out hover:scale-[101%] hover:opacity-80 ">
+    <div class="mb-[6.25rem] bg-base-100 rounded-sm hover:bg-gray-50 transition ease-in-out hover:scale-[101%] hover:opacity-80 ">
       <a href={url} target={target}>
         <div class="hero-content grid gap-6 grid-cols-4 lg:grid-cols-4 gap-4">
           <div class="col-span-3 md:col-span-3 my-2 flex flex-col">
