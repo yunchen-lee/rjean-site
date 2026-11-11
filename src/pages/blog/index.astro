@@ -17,14 +17,42 @@ posts = posts.sort(
 ---
 
 <BaseLayout title={title}>
-  <div class="content content--left">
-    <div class="mt-10 md:mt-0 mb-10">
+  <section class="blog-index">
+    <div class="blog-index__intro">
       <h2>Blog</h2>
     </div>
 
-    <BlogList posts={posts} client:load />
-  </div>
+    <div class="blog-index__list">
+      <BlogList posts={posts} client:load />
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .blog-index {
+    width: 100%;
+    margin: 2rem 0 5rem;
+  }
+
+  .blog-index__intro {
+    margin-bottom: 1.5rem;
+  }
+
+  .blog-index__intro h2 {
+    margin: 0;
+  }
+
+  .blog-index__list {
+    width: 100%;
+  }
+
+  @media screen and (min-width: 728px) {
+    .blog-index {
+      width: auto;
+      margin: 5rem 20vw 5rem;
+    }
+  }
+</style>
 
 
 <!-- <BaseLayout title={title}>

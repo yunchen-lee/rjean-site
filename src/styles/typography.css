@@ -196,6 +196,10 @@
         color: inherit;
     }
      :where(img):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+        display: block;
+        width: 100%;
+        max-width: none;
+        height: auto;
         margin-top: 2em;
         margin-bottom: 2em;
     }

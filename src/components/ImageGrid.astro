@@ -1,0 +1,70 @@
+---
+interface ImageGridItem {
+  src: string;
+  alt?: string;
+  position?: string;
+}
+
+interface Props {
+  images: ImageGridItem[];
+  columns?: number;
+  aspect?: string;
+  gap?: string;
+}
+
+const {
+  images,
+  columns = 2,
+  aspect = "4 / 3",
+  gap = "clamp(0.5rem, 1.5vw, 1rem)",
+} = Astro.props;
+
+const desktopColumns = Math.max(1, Math.min(6, Math.floor(columns)));
+const style = `--image-grid-columns:${desktopColumns};--image-grid-aspect:${aspect};--image-grid-gap:${gap};`;
+---
+
+<div class="image-grid not-prose" style={style}>
+  {images.map((image) => (
+    <figure class="image-grid__item">
+      <img
+        src={image.src}
+        alt={image.alt ?? ""}
+        loading="lazy"
+        decoding="async"
+        style={`object-position:${image.position ?? "center"};`}
+      />
+    </figure>
+  ))}
+</div>
+
+<style>
+  .image-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--image-grid-gap);
+    width: 100%;
+    margin: 2rem 0;
+  }
+
+  .image-grid__item {
+    aspect-ratio: var(--image-grid-aspect);
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .image-grid__item img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+  }
+
+  @media (min-width: 48rem) {
+    .image-grid {
+      grid-template-columns: repeat(var(--image-grid-columns), minmax(0, 1fr));
+    }
+  }
+</style>

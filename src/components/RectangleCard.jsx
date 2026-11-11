@@ -67,8 +67,10 @@ export default function RectangleCard({
         .workshop-card__image {
           display: block;
           width: 100%;
-          height: auto;
+          aspect-ratio: 4 / 3;
           object-fit: cover;
+          object-position: center;
+          background: var(--color-placeholder);
         }
 
         .workshop-card__body {

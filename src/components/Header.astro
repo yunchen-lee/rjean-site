@@ -3,23 +3,25 @@ import TextSlider from "../components/TextSlider.astro";
 import Separator from "../components/Separator.astro";
 
 const currentPath = Astro.url.pathname;
-const routes = {
-  "/": "Projects",
-  "/workshops/": "Workshops",
-  "/cv/": "CV",
-};
-
-const activeRoute = routes[currentPath] || null;
+const activeRoute = currentPath.startsWith("/workshops")
+  ? "Workshops"
+  : currentPath.startsWith("/blog")
+    ? "Blog"
+    : currentPath.startsWith("/cv")
+      ? "CV"
+      : currentPath === "/" || currentPath.startsWith("/projects")
+        ? "Projects"
+        : null;
 ---
 
 <header>
   <h1>
     <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
-      <TextSlider content=" (¦3[▓▓]=) RJean" />
+      <TextSlider content=" (¦3[▓▓]=) RJean Lee" />
     </a>
   </h1>
   <span><TextSlider content="" /></span>
-  <ul>
+  <ul class="desktop-nav">
     <li>
       <a
         href="/"
@@ -40,6 +42,15 @@ const activeRoute = routes[currentPath] || null;
     </li>
     <li>
       <a
+        href="/blog/"
+        class={activeRoute === "Blog" ? "current" : ""}
+        data-astro-prefetch
+      >
+        <TextSlider content="Blog" />
+      </a>
+    </li>
+    <li>
+      <a
         href="/cv/"
         class={activeRoute === "CV" ? "current" : ""}
         data-astro-prefetch
@@ -48,6 +59,30 @@ const activeRoute = routes[currentPath] || null;
       </a>
     </li>
   </ul>
+  <details class="mobile-menu">
+    <summary aria-label="Open navigation menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </summary>
+    <nav aria-label="Main navigation">
+      <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
+        Projects
+      </a>
+      <a
+        href="/workshops/"
+        class={activeRoute === "Workshops" ? "current" : ""}
+      >
+        Workshops
+      </a>
+      <a href="/blog/" class={activeRoute === "Blog" ? "current" : ""}>
+        Blog
+      </a>
+      <a href="/cv/" class={activeRoute === "CV" ? "current" : ""}>
+        CV
+      </a>
+    </nav>
+  </details>
 </header>
 <Separator />
 
@@ -55,10 +90,11 @@ const activeRoute = routes[currentPath] || null;
   header {
     position: relative;
     display: grid;
-    grid-template-columns: min-content 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     font-weight: 700;
     padding: 1rem 0;
     gap: 1rem;
+    align-items: start;
   }
   header a.current {
     pointer-events: none;
@@ -67,6 +103,11 @@ const activeRoute = routes[currentPath] || null;
     font-size: 1rem;
     font-weight: inherit;
     margin: 0;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  h1 a {
+    white-space: nowrap;
   }
   ul {
     display: flex;
@@ -76,9 +117,55 @@ const activeRoute = routes[currentPath] || null;
     padding: 0;
     justify-self: end;
   }
+  header > span,
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-menu {
+    position: relative;
+    justify-self: end;
+    z-index: 20;
+  }
+  .mobile-menu summary {
+    display: grid;
+    gap: 0.25rem;
+    width: 1.5rem;
+    padding: 0.15rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .mobile-menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .mobile-menu summary span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: currentColor;
+  }
+  .mobile-menu nav {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    right: 0;
+    display: grid;
+    min-width: 10rem;
+    padding: 0.75rem 1rem;
+    gap: 0.65rem;
+    text-align: right;
+    background: var(--color-background, #fff);
+    border: 1px solid currentColor;
+  }
   @media screen and (min-width: 50em) {
     header {
       grid-template-columns: 20vw 1fr auto;
+      align-items: center;
+    }
+    header > span,
+    .desktop-nav {
+      display: flex;
+    }
+    .mobile-menu {
+      display: none;
     }
   }
 </style>

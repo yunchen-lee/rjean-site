@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
-import WorkshopList from "../../components/WorkshopList.jsx";
+import WorkshopPortfolioCard from "../../components/WorkshopPortfolioCard.astro";
 
 const title = "RJean | Workshops";
 
@@ -13,39 +13,52 @@ posts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.d
 ---
 
 <BaseLayout title={title}>
-  <section class="workshops-index">
-    <div class="workshops-index__intro">
+  <section class="portfolio-index">
+    <div class="portfolio-index__intro">
       <h2>Workshops</h2>
     </div>
 
-    <div class="workshops-index__list">
-      <WorkshopList posts={posts} client:load />
+    <div class="portfolio-grid">
+      {posts.map((workshop) => <WorkshopPortfolioCard workshop={workshop} />)}
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .workshops-index {
-    width: 100%;
+  .portfolio-index {
+    display: grid;
+    gap: 1.5rem;
     margin: 2rem 0 5rem;
   }
 
-  .workshops-index__intro {
-    margin-bottom: 1.5rem;
+  .portfolio-index__intro {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 42rem;
   }
 
-  .workshops-index__intro h2 {
+  .portfolio-index__intro h2 {
     margin: 0;
   }
 
-  .workshops-index__list {
-    width: 100%;
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
   }
 
   @media screen and (min-width: 728px) {
-    .workshops-index {
-      width: auto;
-      margin: 5rem 20vw 5rem;
+    .portfolio-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 728px) {
+    .portfolio-index {
+      width: 80%;
+      margin-top: 5rem;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 </style>

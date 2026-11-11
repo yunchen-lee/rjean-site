@@ -1,5 +1,5 @@
 import { useState, useEffect } from "preact/hooks";
-import HorizontalCard from "./HorizontalCard.jsx";
+import RectangleCard from "./RectangleCard.jsx";
 
 const STORAGE_KEY = "blog-visibleCount-v1";
 const STEP = 20;
@@ -36,20 +36,18 @@ export default function BlogList({ posts }) {
 
   return (
     <div>
-      <div class="grid grid-cols-1 lg:grid-cols-1 gap-4">
+      <div class="grid grid-cols-1 gap-8">
         {posts.slice(0, visibleCount).map((post, idx) => (
-          <div key={post.id ?? idx}>
-            <HorizontalCard
-              title={post.data.title}
-              img={post.data.cover}
-              desc={post.data.description}
-              url={`/blog/${post.id}`}
-              target="_self"
-              tags={post.data.tags}
-              date={post.data.date.toISOString().split("T")[0]}
-            />
-              <div class="divider my-0 border-1 border-gray-300 border-solid" />
-          </div>
+          <RectangleCard
+            key={post.id ?? idx}
+            title={post.data.title}
+            img={post.data.cover}
+            desc={post.data.description}
+            url={`/blog/${post.id}`}
+            target="_self"
+            tags={post.data.tags}
+            date={post.data.date.toISOString().split("T")[0]}
+          />
         ))}
       </div>
 
