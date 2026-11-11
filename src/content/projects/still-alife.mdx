@@ -1,44 +1,44 @@
 ---
 title: "Still A-life"
 subTitle: "GLSL x Pointillism"
-tags: ["Shader", "GLSL", "Pointillism"]
-date: 2022-11-01
-cover: 
+tags: ["GLSL", "Ray Marching", "Pointillism", "Creative Coding"]
+date: 2022-12-27
+cover:
     src: "/images/projects/still-alife/cover.webp"
-    alt: "An experimental glsl painting work."
+    alt: "Still A-life"
 status: "Published"
 visible: true
-
 ---
 
-import image_6 from "../../assets/images/blog/still-life-3/image_6.png"
-import image_5 from "../../assets/images/blog/still-life-3/image_5.png"
-import image_4 from "../../assets/images/blog/still-life-3/image_4.png"
-import image_3 from "../../assets/images/blog/still-life-3/image_3.png"
-import image_2 from "../../assets/images/blog/still-life-3/image_2.png"
-import image_1 from "../../assets/images/blog/still-life-3/image_1.png"
-import image_0 from "../../assets/images/blog/still-life-3/image_0.png"
+Still A-life is a real-time GLSL experiment that turns a digital still life into a pointillist image. I first built the objects with signed distance functions (SDFs) and rendered the scene through ray marching. Noise then breaks the image into small dots. Different colors are applied to the light, shadow, and surface layers, and a custom color-mixing method combines them into the final image. Because the lighting is calculated in real time, the pointillist scene changes as the light moves.
 
+[View the source code on GitHub](https://github.com/yunchen-lee/HSAA30062_p5shader_geoStillLife_Pointillism)
 
+<hr />
 
-Amara Patel, known by her stage name Amarié, is an experimental R&B artist whose hypnotic voice and genre-defying sound have redefined the boundaries of contemporary music. Born in London to a multicultural family, Amarié’s music draws from her diverse heritage, blending elements of traditional soul with electronic textures and avant-garde beats.
+<video
+  controls
+  playsinline
+  preload="metadata"
+  poster="/images/projects/still-alife/00-still-alife-demo-poster.webp"
+  style="display: block; width: 100%; height: auto;"
+>
+  <source src="/images/projects/still-alife/00-still-alife-demo.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
 
-Her debut album, *Ethereal Currents*, earned critical acclaim for its lush production and emotive storytelling. Themes of empowerment, identity, and vulnerability run through her lyrics, set against a sonic backdrop that’s as bold and captivating as her presence.
+![Concept combining still life and pointillism](/images/projects/still-alife/01-concept.png)
 
-Amarié’s live performances are immersive experiences, featuring haunting visuals and atmospheric soundscapes that transport her audience into another world. Offstage, she’s a passionate advocate for underrepresented voices in the music industry, working to create opportunities for emerging artists. With her fearless approach to artistry, Amarié is leading a new era of R&B innovation.
+![Pointillism reference](/images/projects/still-alife/02-pointillism-reference.png)
 
+![Lighting layers generated from the SDF scene](/images/projects/still-alife/03-lighting-process.png)
 
-Amara Patel, known by her stage name Amarié, is an experimental R&B artist whose hypnotic voice and genre-defying sound have redefined the boundaries of contemporary music. Born in London to a multicultural family, Amarié’s music draws from her diverse heritage, blending elements of traditional soul with electronic textures and avant-garde beats.
+![Noise-based point brushes](/images/projects/still-alife/04-noise-brush.png)
 
+![Masks for different lighting areas](/images/projects/still-alife/05-light-masks.png)
 
-<LightBox
-  images={[
-    { src: image_0, caption: "picture 1", alt: "" },
-    { src: image_1, caption: "", alt: "" },
-    { src: image_2, caption: "", alt: "" },
-    { src: image_3, caption: "", alt: "" },
-    { src: image_4, caption: "", alt: "" },
-    { src: image_5, caption: "", alt: "" },
-    { src: image_6, caption: "", alt: "" }
-  ]}
-/>
+![Color-mixing tests](/images/projects/still-alife/06-color-mixing.png)
+
+![Layer-by-layer pointillist rendering process](/images/projects/still-alife/07-layer-process.png)
+
+![Final real-time pointillist still life](/images/projects/still-alife/08-final-result.png)
