@@ -33,20 +33,20 @@ const activeRoute = currentPath.startsWith("/workshops")
     </li>
     <li>
       <a
-        href="/workshops/"
-        class={activeRoute === "Workshops" ? "current" : ""}
-        data-astro-prefetch
-      >
-        <TextSlider content="Workshops" />
-      </a>
-    </li>
-    <li>
-      <a
         href="/blog/"
         class={activeRoute === "Blog" ? "current" : ""}
         data-astro-prefetch
       >
         <TextSlider content="Blog" />
+      </a>
+    </li>
+    <li>
+      <a
+        href="/workshops/"
+        class={activeRoute === "Workshops" ? "current" : ""}
+        data-astro-prefetch
+      >
+        <TextSlider content="Workshops" />
       </a>
     </li>
     <li>
@@ -69,14 +69,14 @@ const activeRoute = currentPath.startsWith("/workshops")
       <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
         Projects
       </a>
+      <a href="/blog/" class={activeRoute === "Blog" ? "current" : ""}>
+        Blog
+      </a>
       <a
         href="/workshops/"
         class={activeRoute === "Workshops" ? "current" : ""}
       >
         Workshops
-      </a>
-      <a href="/blog/" class={activeRoute === "Blog" ? "current" : ""}>
-        Blog
       </a>
       <a href="/cv/" class={activeRoute === "CV" ? "current" : ""}>
         CV

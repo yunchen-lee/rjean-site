@@ -5,6 +5,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Separator from "../../components/Separator.astro";
 import LightBox from "../../components/LightBox.astro";
 import ImageGrid from "../../components/ImageGrid.astro";
+import Link from "../../components/Link.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -25,6 +26,7 @@ const { Content } = await render(page);
 const components = {
   LightBox,
   ImageGrid,
+  Link,
 };
 ---
 
