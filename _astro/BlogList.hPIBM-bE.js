@@ -1,4 +1,4 @@
-import{d as p,y as c}from"./hooks.module.DKr0xz_Z.js";import{u as r}from"./jsxRuntime.module.N7e_s17M.js";import"./preact.module.CMz4SUKz.js";function _({title:t,img:a,desc:i,url:o,badge:e="",tags:l=[],target:s="_blank",date:h}){const g=typeof a=="string"?a:a?.src,m=typeof a=="object"&&a?.alt?a.alt:t;return r("div",{class:"workshop-card",children:[r("a",{href:o,target:s,class:"workshop-card__link",children:r("div",{class:"workshop-card__inner",children:[r("div",{class:"workshop-card__media",children:r("img",{src:g,alt:m,class:"workshop-card__image",loading:"lazy",decoding:"async"})}),r("div",{class:"workshop-card__body",children:[r("h1",{class:"workshop-card__title",children:t}),r("p",{class:"workshop-card__description",children:i}),r("p",{class:"workshop-card__meta",children:h})]})]})}),r("style",{children:`
+import{d as p,y as l}from"./hooks.module.DKr0xz_Z.js";import{u as r}from"./jsxRuntime.module.N7e_s17M.js";import"./preact.module.CMz4SUKz.js";function _({title:i,img:a,desc:t,url:o,badge:e="",tags:c=[],target:s="_blank",date:h}){const g=typeof a=="string"?a:a?.src,m=typeof a=="object"&&a?.alt?a.alt:i;return r("div",{class:"workshop-card",children:[r("a",{href:o,target:s,class:"workshop-card__link",children:r("div",{class:"workshop-card__inner",children:[r("div",{class:"workshop-card__media",children:r("img",{src:g,alt:m,class:"workshop-card__image",loading:"lazy",decoding:"async"})}),r("div",{class:"workshop-card__body",children:[r("h1",{class:"workshop-card__title",children:i}),r("p",{class:"workshop-card__description",children:t}),r("p",{class:"workshop-card__meta",children:h})]})]})}),r("style",{children:`
         .workshop-card {
           border-bottom: 1px solid #000;
         }
@@ -53,6 +53,10 @@ import{d as p,y as c}from"./hooks.module.DKr0xz_Z.js";import{u as r}from"./jsxRu
         }
 
         .workshop-card__description {
+          display: -webkit-box;
+          overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
           margin: 0;
           font-size: var(--font-size-card-body);
           line-height: var(--line-height-card-body);
@@ -69,7 +73,7 @@ import{d as p,y as c}from"./hooks.module.DKr0xz_Z.js";import{u as r}from"./jsxRu
         @media screen and (min-width: 425px) {
           .workshop-card__inner {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 1fr 3fr;
             gap: 1rem;
             align-items: start;
           }
@@ -78,4 +82,4 @@ import{d as p,y as c}from"./hooks.module.DKr0xz_Z.js";import{u as r}from"./jsxRu
             width: 80%;
           }
         }
-      `})]})}const d="blog-visibleCount-v1",f=20,n=20;function b({posts:t}){const[a,i]=p(n);c(()=>{try{const e=parseInt(localStorage.getItem(d)||"",10);Number.isNaN(e)||i(Math.min(Math.max(e,n),t.length))}catch{}},[t.length]),c(()=>{try{localStorage.setItem(d,String(a))}catch{}},[a]),c(()=>{a>t.length&&i(t.length)},[t.length,a]);const o=()=>{i(e=>Math.min(e+f,t.length))};return r("div",{children:[r("div",{class:"grid grid-cols-1 gap-8",children:t.slice(0,a).map((e,l)=>r(_,{title:e.data.title,img:e.data.cover,desc:e.data.description,url:`/blog/${e.id}`,target:"_self",tags:e.data.tags,date:e.data.date.toISOString().split("T")[0]},e.id??l))}),a<t.length&&r("div",{class:"flex mt-6 font-medium text-gray-800 hover:text-gray-400",children:r("button",{onClick:o,children:[r("span",{class:"text-lg","aria-hidden":"true",children:"↓"}),"  Load more..."]})})]})}export{b as default};
+      `})]})}const d="blog-visibleCount-v1",k=20,n=20;function b({posts:i}){const[a,t]=p(n);l(()=>{try{const e=parseInt(localStorage.getItem(d)||"",10);Number.isNaN(e)||t(Math.min(Math.max(e,n),i.length))}catch{}},[i.length]),l(()=>{try{localStorage.setItem(d,String(a))}catch{}},[a]),l(()=>{a>i.length&&t(i.length)},[i.length,a]);const o=()=>{t(e=>Math.min(e+k,i.length))};return r("div",{children:[r("div",{class:"grid grid-cols-1 gap-8",children:i.slice(0,a).map((e,c)=>r(_,{title:e.data.title,img:e.data.previewCover??e.data.cover,desc:e.data.description,url:`/blog/${e.id}`,target:"_self",tags:e.data.tags,date:e.data.date.toISOString().split("T")[0]},e.id??c))}),a<i.length&&r("div",{class:"flex mt-6 font-medium text-gray-800 hover:text-gray-400",children:r("button",{onClick:o,children:[r("span",{class:"text-lg","aria-hidden":"true",children:"↓"}),"  Load more..."]})})]})}export{b as default};
