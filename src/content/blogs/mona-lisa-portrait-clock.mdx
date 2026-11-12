@@ -1,0 +1,356 @@
+---
+title: "Mona Lisa Portrait Clock: Fourier Drawing and the Representation of Time"
+description: "This article presents an experimental portrait clock that connects drawing complexity with time. The system converts a traced Mona Lisa into two-dimensional point data and applies a discrete Fourier transform to represent the path as rotating circles. The same source points can produce simple or detailed drawings by changing the number of circles used during a fixed drawing period. Image colors are sampled to build a layered background while the Fourier path gradually completes the portrait. The study explores how mathematical representation, data amount, and drawing time can shape the visual experience of a familiar image."
+tags: ["p5.js", "Fourier Transform", "Generative Drawing", "Time"]
+date: 2026-10-01
+state: "Published"
+cover:
+  src: "/images/blogs/mona-lisa-portrait-clock/cover.png"
+  alt: "Four stages of a Mona Lisa portrait drawn with Fourier circles over a sampled-color background."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Mona Lisa Portrait Clock: Fourier Drawing and the Representation of Time
+
+本文介紹一個將繪圖複雜度與時間連結的實驗性肖像時鐘。系統先將描繪的 Mona Lisa 轉換為二維點資料，再使用離散 Fourier transform，把路徑表示為一系列旋轉圓。相同的來源點可以透過不同數量的圓，在固定的繪圖時間中產生簡單或細緻的圖像。背景則取樣原圖顏色逐步建立，Fourier 路徑同時慢慢完成肖像。本研究探索數學表示、資料量與繪圖時間如何共同改變一張熟悉圖像的視覺經驗。
+
+This article presents an experimental portrait clock that connects drawing complexity with time. The system converts a traced Mona Lisa into two-dimensional point data and applies a discrete Fourier transform to represent the path as rotating circles. The same source points can produce simple or detailed drawings by changing the number of circles used during a fixed drawing period. Image colors are sampled to build a layered background while the Fourier path gradually completes the portrait. The study explores how mathematical representation, data amount, and drawing time can shape the visual experience of a familiar image.
+
+<hr />
+
+## Inspiration
+
+The project was inspired by an experiment that reconstructs the Mona Lisa over time. I wanted to connect this idea with Fourier drawing and use the amount of available time to control how much detail appears.
+
+<LinkCardGroup items={[
+  { url: "https://freddyox.github.io/blog/mona-lisa/", title: "Mona Lisa", description: "A time-based computational reconstruction of the Mona Lisa.", site: "freddyox.github.io" }
+]} />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/01-inspiration.png" alt="Three stages of a computational Mona Lisa reconstruction." />
+
+## Result and Reflection
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/cover.png" alt="Four time stages of the Fourier Mona Lisa portrait clock." />
+
+This experimental clock studies the connection between drawing and time. A short period produces a simpler drawing, while a longer period produces a more complex and detailed portrait. All four drawings use the same source points. A Fourier transform converts these points into rotating circles, and the number of circles controls the visual complexity.
+
+The project helped me connect the visual process of drawing with the mathematical calculation of a Fourier transform. It also showed how the amount of data can directly affect the result. In a future version, I would like to choose a different number of circles for each run and use irregular color shapes to build the background more gradually.
+
+<hr />
+
+## Understanding Fourier Series
+
+Fourier series use rotating circles, often called epicycles, to create different waves. Adding more circles allows the system to represent more complex changes.
+
+<IframeCardGroup items={[
+  { url: "https://youtu.be/r6sGWTCMz2k", title: "Fourier Series and Rotating Circles" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/02-sawtooth-series.gif", alt: "Rotating Fourier circles generating a sawtooth wave." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/03-square-series.gif", alt: "Rotating Fourier circles generating a square wave." }
+]} />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/04-fourier-series-diagram.png" alt="A diagram showing how rotating circles combine into a wave." />
+
+<Link text="Read the Fourier series overview on Wikipedia" href="https://en.wikipedia.org/wiki/Fourier_series" />
+
+## Testing Fourier Transform in p5.js
+
+### From Circles to Values
+
+I first followed a p5.js Fourier series example to understand how several rotating circles generate a sequence of values.
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=Mm2eYfj0SgA&t=1540s", title: "Coding Challenge 125: Fourier Series" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/05-single-circle-wave.gif", alt: "One rotating circle drawing a sine wave." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/06-multiple-circle-wave.gif", alt: "Several rotating circles drawing a more complex wave." }
+]} />
+
+### From Values to Circles
+
+Next, I implemented a discrete Fourier transform. It converts a sequence of values into frequency, amplitude, and phase values that can be drawn as rotating circles.
+
+<LinkCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=2hfoX51f6sg", title: "Fourier Analysis for The Rest of Us", description: "An introduction to Fourier analysis.", site: "youtube.com" },
+  { url: "https://www.youtube.com/watch?v=qS4H6PEcCCA", title: "Epicycles and Complex Fourier Series", description: "A visual explanation of epicycles and Fourier series.", site: "youtube.com" },
+  { url: "https://www.algorithm-archive.org/contents/cooley_tukey/cooley_tukey.html", title: "FFT: Cooley–Tukey Algorithm", description: "Background on the fast Fourier transform.", site: "algorithm-archive.org" }
+]} />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/07-dft-formula.png" alt="The discrete Fourier transform formula." />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/08-ordered-values.gif", alt: "Fourier circles reconstructing an ordered sequence." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/09-random-values.gif", alt: "Fourier circles reconstructing a random sequence." }
+]} />
+
+<Collapsible title="Discrete Fourier transform code">
+
+```jsx
+function dft(values) {
+  const result = [];
+  const count = values.length;
+
+  for (let k = 0; k < count; k++) {
+    let real = 0;
+    let imaginary = 0;
+
+    for (let n = 0; n < count; n++) {
+      const angle = (TWO_PI * k * n) / count;
+      real += values[n] * cos(angle);
+      imaginary -= values[n] * sin(angle);
+    }
+
+    real /= count;
+    imaginary /= count;
+
+    result[k] = {
+      re: real,
+      im: imaginary,
+      freq: k,
+      amp: sqrt(real * real + imaginary * imaginary),
+      phase: atan2(imaginary, real)
+    };
+  }
+
+  return result;
+}
+```
+
+</Collapsible>
+
+### Moving from One Dimension to Two
+
+To draw a portrait, I extended the transform from a list of vertical values to a list of two-dimensional `{x, y}` points.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/10-two-dimensional-path.gif", alt: "Fourier circles following a two-dimensional path." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/11-sine-path.gif", alt: "Fourier circles reconstructing a circular sine-wave path." }
+]} />
+
+```jsx
+const radius = 100;
+const step = TWO_PI / 360;
+
+for (let i = 0; i < 360; i++) {
+  const offset = 30 * sin(i / 6);
+  const x = (radius + offset) * cos(step * i);
+  const y = (radius + offset) * sin(step * i);
+  points.push({ x, y });
+}
+
+fourierXY = dft2D(points);
+```
+
+<Collapsible title="Two-dimensional DFT code">
+
+```jsx
+function dft2D(points) {
+  const result = [];
+  const count = points.length;
+
+  for (let k = 0; k < count; k++) {
+    let real = 0;
+    let imaginary = 0;
+
+    for (let n = 0; n < count; n++) {
+      const angle = (TWO_PI * k * n) / count;
+      real += points[n].x * cos(angle) + points[n].y * sin(angle);
+      imaginary += points[n].y * cos(angle) - points[n].x * sin(angle);
+    }
+
+    real /= count;
+    imaginary /= count;
+    result[k] = {
+      re: real,
+      im: imaginary,
+      freq: k,
+      amp: sqrt(real * real + imaginary * imaginary),
+      phase: atan2(imaginary, real)
+    };
+  }
+
+  return result;
+}
+```
+
+</Collapsible>
+
+## Preparing the Mona Lisa
+
+### First Attempt: Thresholded SVG
+
+My first approach converted the source image into a black-and-white SVG with ImageMagick and Potrace. I tested several grayscale thresholds, sorted the resulting points in Grasshopper, and exported them as JSON. The automatic paths did not provide the continuous drawing order I needed, so I changed to a manually drawn line.
+
+<Collapsible title="Threshold and point-sorting tests">
+
+<LinkCardGroup items={[
+  { url: "https://imagemagick.org/download/", title: "ImageMagick", description: "Used to convert and threshold the source image.", site: "imagemagick.org" },
+  { url: "https://potrace.sourceforge.net/", title: "Potrace", description: "Used to trace the black-and-white image as SVG paths.", site: "potrace.sourceforge.net" }
+]} />
+
+```bash
+magick monalisa.jpg -colorspace Gray -threshold 50% monalisa.pnm
+potrace monalisa.pnm -s -o monalisa.svg
+```
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/12-mona-lisa-source.jpg" alt="The Mona Lisa source image." />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/13-threshold-30.svg", alt: "Mona Lisa vector trace at a 30 percent gray threshold." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/14-threshold-20.svg", alt: "Mona Lisa vector trace at a 20 percent gray threshold." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/15-threshold-40.svg", alt: "Mona Lisa vector trace at a 40 percent gray threshold." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/16-threshold-50.svg", alt: "Mona Lisa vector trace at a 50 percent gray threshold." }
+]} />
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/17-threshold-process-a.png", alt: "The first threshold conversion test." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/18-threshold-process-b.png", alt: "The second threshold conversion test." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/19-threshold-process-c.png", alt: "The third threshold conversion test." }
+]} />
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/20-sorting-test-33-20.png", alt: "A point-sorting test using parameters 33 and 20." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/21-sorting-test-32.png", alt: "A point-sorting test using parameter 32." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/22-sorting-test-39.png", alt: "A point-sorting test using parameter 39." }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/23-sorting-process-a.png", alt: "A Grasshopper point-sorting process." },
+  { src: "/images/blogs/mona-lisa-portrait-clock/24-sorting-process-b.png", alt: "A second Grasshopper point-sorting process." }
+]} />
+
+</Collapsible>
+
+### Drawing a Continuous Line
+
+I manually traced the image as a continuous line, then used Grasshopper to divide the curve and export its points as JSON.
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/25-drawn-mona-lisa-lines.png" alt="A manually traced continuous-line drawing of the Mona Lisa." />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/26-grasshopper-export.png" alt="The Mona Lisa curve and Grasshopper definition used to export point data." />
+
+<Collapsible title="Grasshopper Python export code">
+
+```python
+import json
+import os
+
+results = []
+
+for i in range(x.BranchCount):
+    path_id = x.Paths[i]
+    branch_x = x.Branch(path_id)
+    branch_y = y.Branch(path_id)
+
+    for j in range(len(branch_x)):
+        results.append({
+            "x": round(float(branch_x[j]), 2),
+            "y": round(float(branch_y[j]), 2)
+        })
+
+output = json.dumps(results, indent=2)
+
+if save and path:
+    file_path = os.path.join(path, "monalisa.json")
+    with open(file_path, "w") as file:
+        file.write(output)
+```
+
+</Collapsible>
+
+```json
+[
+  { "x": 83.77, "y": 194.93 },
+  { "x": 84.81, "y": 202.84 },
+  { "x": 84.15, "y": 210.8 }
+]
+```
+
+## Fourier Mona Lisa
+
+The exported points are transformed into frequency components. During drawing, the system adds the circles one by one and stores the current endpoint to build the portrait path.
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/27-fourier-mona-lisa.png" alt="The Mona Lisa reconstructed as a white Fourier path and rotating circles on a black background." />
+
+<Collapsible title="Fourier Mona Lisa drawing code">
+
+```jsx
+async function setup() {
+  createCanvas(800, 800);
+  const data = await loadJSON('monalisa.json');
+
+  for (const value of Object.values(data)) {
+    points.push(value);
+  }
+
+  fourierXY = dft2D(points);
+}
+
+function draw() {
+  background(0);
+  translate(width / 2, height / 2);
+
+  let x = 0;
+  let y = 0;
+
+  for (const component of fourierXY) {
+    x += component.amp * cos(component.freq * time + component.phase + HALF_PI);
+    y += component.amp * sin(component.freq * time + component.phase + HALF_PI);
+  }
+
+  wave.unshift({ x, y });
+  beginShape();
+  wave.forEach((point) => vertex(point.x, point.y));
+  endShape();
+
+  time -= TWO_PI / fourierXY.length;
+}
+```
+
+</Collapsible>
+
+### Reducing the Number of Circles
+
+The number of circles can change without changing the total drawing time. To keep the duration fixed, the time step uses the length of the complete Fourier dataset rather than the reduced list.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/28-time-step-original.png", alt: "A distorted portrait using the reduced Fourier list for the time step.", caption: "TWO_PI / fourierXY.length" },
+  { src: "/images/blogs/mona-lisa-portrait-clock/29-time-step-adjusted.png", alt: "A recognizable portrait using the full Fourier list for the time step.", caption: "TWO_PI / allFourier.length" }
+]} />
+
+```jsx
+const dt = TWO_PI / allFourier.length;
+time -= dt;
+```
+
+### Testing the Number of Circles
+
+More circles provide more frequency information and produce a more detailed drawing.
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/30-circles-50.png", alt: "Mona Lisa drawing made with 50 Fourier circles.", caption: "50 circles" },
+  { src: "/images/blogs/mona-lisa-portrait-clock/31-circles-100.png", alt: "Mona Lisa drawing made with 100 Fourier circles.", caption: "100 circles" },
+  { src: "/images/blogs/mona-lisa-portrait-clock/32-circles-350.png", alt: "Mona Lisa drawing made with 350 Fourier circles.", caption: "350 circles" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/mona-lisa-portrait-clock/33-circles-1000.png", alt: "Mona Lisa drawing made with 1000 Fourier circles.", caption: "1000 circles" },
+  { src: "/images/blogs/mona-lisa-portrait-clock/34-circles-2000.png", alt: "Mona Lisa drawing made with 2000 Fourier circles.", caption: "2000 circles" }
+]} />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/35-circle-count-comparison.png" alt="A comparison showing how higher circle counts add detail to the Mona Lisa drawing." />
+
+## Sampling Colors from the Image
+
+The final background samples colors from the source image. Large translucent shapes appear first, followed by smaller shapes that gradually add local detail while the white Fourier line completes the portrait.
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/36-color-sampling-process.png" alt="The color-sampling process used to build the Mona Lisa background." />
+
+<ImageBox src="/images/blogs/mona-lisa-portrait-clock/cover.png" alt="The completed Mona Lisa portrait clock shown at four stages of drawing time." />

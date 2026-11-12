@@ -1,0 +1,14 @@
+---
+interface Props { href?: string; src?: string; title: string; }
+const { href, src, title } = Astro.props;
+const url = href ?? src ?? "#";
+---
+
+<a class="file-download not-prose" href={url} target="_blank" rel="noreferrer">
+  <span aria-hidden="true">↓</span><span>{title}</span>
+</a>
+
+<style>
+  .file-download { display: flex; align-items: center; gap: .75rem; margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--color-text); color: inherit; font-weight: 600; }
+  .file-download:hover { background: var(--color-placeholder); color: inherit; }
+</style>

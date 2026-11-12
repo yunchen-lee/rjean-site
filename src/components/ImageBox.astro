@@ -1,0 +1,21 @@
+---
+interface Props {
+  src: string | { src: string };
+  alt?: string;
+  caption?: string;
+}
+
+const { src, alt = "", caption = "" } = Astro.props;
+const imageSrc = typeof src === "string" ? src : src.src;
+---
+
+<figure class="image-box not-prose">
+  <img src={imageSrc} alt={alt} loading="lazy" decoding="async" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .image-box { margin: 2rem 0; }
+  .image-box img { width: 100%; max-height: 80vh; object-fit: contain; }
+  .image-box figcaption { margin-top: .65rem; color: var(--color-text-alt); font-size: .85rem; text-align: left; line-height: 1.4; }
+</style>

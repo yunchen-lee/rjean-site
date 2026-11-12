@@ -26,6 +26,10 @@ const blogs = defineCollection({
       src: z.string(),
       alt: z.string(),
     }),
+    previewCover: z.object({
+      src: z.string(),
+      alt: z.string(),
+    }).optional(),
     tags: z.array(z.string()),
     date: z.date(),
     state: z.string()
@@ -37,6 +41,7 @@ const workshops = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    context: z.string(),
     visible: z.boolean().default(true),
     cover: z.object({
       src: z.string(),

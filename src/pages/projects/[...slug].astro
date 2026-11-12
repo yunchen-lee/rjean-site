@@ -46,7 +46,7 @@ const components = {
           class="fade-in max-auto aspect-[5/3] object-cover rounded-sm"
         />
 
-        <div class="content content--blog pt-3 prose text-justify">
+        <div class="content content--blog project-article pt-3 prose text-justify">
           <Content components={components} />
 
           <dl class="text-sm/5 lg:text-base/6 mt-6">
@@ -63,5 +63,17 @@ const components = {
   .back::before {
     content: "\2190";
     margin-right: 0.25rem;
+  }
+
+  .content :global(hr) {
+    border: 0;
+    border-top: 1px solid rgb(180, 180, 180);
+  }
+
+  @media screen and (min-width: 50em) {
+    .project-article {
+      max-width: 55ch;
+      margin-inline: 15vw;
+    }
   }
 </style>

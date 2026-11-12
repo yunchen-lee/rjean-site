@@ -26,11 +26,27 @@ import Prose from '../../components/Prose.astro';
 
 import LightBox from '../../components/LightBox.astro';
 import ImageGrid from '../../components/ImageGrid.astro';
+import ImageBox from '../../components/ImageBox.astro';
+import Link from '../../components/Link.astro';
+import LinkCardGroup from '../../components/LinkCardGroup.astro';
+import FileDownload from '../../components/FileDownload.astro';
+import IframeCardGroup from '../../components/IframeCardGroup.astro';
+import Highlight from '../../components/Highlight.astro';
+import Collapsible from '../../components/Collapsible.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
 
 
 const components = {
   LightBox: LightBox,
-  ImageGrid: ImageGrid
+  ImageGrid,
+  ImageBox,
+  Link,
+  LinkCardGroup,
+  FileDownload,
+  IframeCardGroup,
+  Highlight,
+  Collapsible,
+  TableOfContents
 };
 ---
 
@@ -61,7 +77,7 @@ const components = {
 
         />
     
-        <div class="content content--blog pt-3 prose text-justify">
+        <div class="content content--blog blog-article pt-3 prose text-justify">
             <!-- <Prose> -->
                 <dl>
                 <dt>{page.data.date.toISOString().split("T")[0]}</dt>
@@ -114,4 +130,27 @@ const components = {
       content: "\2190";
       margin-right: 0.25rem; /* 控制和文字的間距 */
     }
+
+  @media screen and (min-width: 50em) {
+    .blog-article {
+      max-width: 55ch;
+      margin-inline: 15vw;
+    }
+  }
+
+  .blog-article :global(pre),
+  .blog-article :global(pre code) {
+    background-color: #fff !important;
+  }
+
+  .blog-article :global(hr) {
+    border: 0;
+    border-top: 1px solid rgb(180, 180, 180);
+  }
+
+  .blog-article :global(h1) {
+    text-align: left;
+    line-height: 1.5;
+  }
+
 </style>

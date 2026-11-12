@@ -1,0 +1,205 @@
+---
+title: "Optical Still Life: Drawing Negative Space with Flood Fill"
+description: "This article presents an animated still-life drawing system that uses negative space to suggest three-dimensional form. Source paintings are resized, converted to grayscale, and thresholded into binary pixel data. A flood fill algorithm identifies connected black regions, while contour detection orders boundary pixels into paths that can be drawn over time. The outline animation is followed by region filling, allowing the object to emerge gradually from an almost empty canvas. Tests with fruit, flowers, and vessels explore how image preprocessing, drawing order, and missing visual information affect the perception of form."
+tags: ["p5.js", "Image Processing", "Flood Fill", "Optical Illusion"]
+date: 2026-10-15
+state: "Published"
+cover:
+  src: "/images/blogs/optical-still-life/cover-threshold.png"
+  alt: "A thresholded black-and-white still life showing a row of pear-shaped objects."
+previewCover:
+  src: "/images/blogs/optical-still-life/preview-banana.gif"
+  alt: "An animated banana still life gradually drawn with black contour marks."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Optical Still Life: Drawing Negative Space with Flood Fill
+
+本文介紹一個利用負空間暗示三維形體的靜物動畫繪圖系統。來源畫作先被調整尺寸、轉換為灰階，再透過 threshold 形成二元像素資料。Flood fill 演算法用來辨識相連的黑色區域，contour detection 則將邊界像素排列成可依序繪製的路徑。輪廓動畫完成後，系統再填入區域，使物件從接近空白的畫面中逐漸出現。透過水果、花朵與器皿的測試，本研究探索影像前處理、繪製順序與缺失的視覺資訊如何影響形體感知。
+
+This article presents an animated still-life drawing system that uses negative space to suggest three-dimensional form. Source paintings are resized, converted to grayscale, and thresholded into binary pixel data. A flood fill algorithm identifies connected black regions, while contour detection orders boundary pixels into paths that can be drawn over time. The outline animation is followed by region filling, allowing the object to emerge gradually from an almost empty canvas. Tests with fruit, flowers, and vessels explore how image preprocessing, drawing order, and missing visual information affect the perception of form.
+
+<hr />
+
+## Concept: From Two Dimensions to Three
+
+The project explores how negative space and animated drawing can create the illusion of three-dimensional objects. Instead of reproducing every detail, the system reveals selected boundaries and filled areas over time, allowing the viewer to complete the image mentally.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/01-negative-space-reference.png", alt: "A printed reference showing objects defined by surrounding black negative space.", caption: "Negative-space reference" },
+  { src: "/images/blogs/optical-still-life/02-negative-space-sketch.png", alt: "A hand-drawn study of objects and background spaces.", caption: "Early negative-space sketch" }
+]} />
+
+## Result
+
+<Link text="View the interactive sketch on OpenProcessing" href="https://openprocessing.org/@YunChenLee/3038135" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/cover.gif", alt: "A banana still life gradually appearing through animated outline and fill marks.", caption: "Animated banana study" },
+  { src: "/images/blogs/optical-still-life/03-banana-still-life-reference.jpg", alt: "A still-life painting with bananas, an apple, and a pineapple.", caption: "Reference painting by Samuel Earp" }
+]} />
+
+## Collecting Artwork with the Met API
+
+I first tried to retrieve public-domain still-life paintings from the Metropolitan Museum of Art collection API. The request worked outside the p5.js sketch, but the full workflow did not run successfully inside p5.js, so I continued with locally prepared images.
+
+<LinkCardGroup items={[
+  { url: "https://metmuseum.github.io/", title: "The Met Collection API", description: "Public API documentation for searching and reading artwork records.", site: "metmuseum.github.io" },
+  { url: "https://www.metmuseum.org/art/collection/search/436305", title: "Still Life by Georg Flegel", description: "The public-domain artwork returned during the API test.", site: "metmuseum.org" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/04-met-api-request.png", alt: "A browser view of a Met Collection API request.", caption: "Searching for public-domain still-life paintings" },
+  { src: "/images/blogs/optical-still-life/05-met-api-response.png", alt: "A console response containing title, artist, and image URL fields.", caption: "Reading the first valid artwork record" }
+]} />
+
+```json
+{
+  "title": "Still Life",
+  "artistDisplayName": "Georg Flegel",
+  "primaryImageSmall": "https://images.metmuseum.org/CRDImages/ep/web-large/DP-25893-001.jpg"
+}
+```
+
+<Collapsible title="Met API request code">
+
+```jsx
+async function getValidArtworks() {
+  const url = 'https://collectionapi.metmuseum.org/public/collection/v1.1/search?hasImages=true&departmentId=11&q=still%20life&offset=0&limit=50';
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (!response.ok || !data.objectIDs) return [];
+
+  const results = await Promise.all(
+    data.objectIDs.map(async (id) => {
+      const result = await fetch(
+        `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`
+      );
+      return result.ok ? result.json() : null;
+    })
+  );
+
+  return results.filter((artwork) =>
+    artwork &&
+    artwork.isPublicDomain === true &&
+    typeof artwork.primaryImageSmall === 'string' &&
+    artwork.primaryImageSmall.length > 0
+  );
+}
+```
+
+</Collapsible>
+
+<ImageBox src="/images/blogs/optical-still-life/06-met-still-life.jpg" alt="Still Life by Georg Flegel, showing food, vessels, and a bird." caption="Still Life, Georg Flegel, probably ca. 1625–30, The Metropolitan Museum of Art" />
+
+## Image Processing and Binarization
+
+The source image is resized, converted to grayscale, and thresholded. The resulting black-and-white image becomes a two-dimensional array in which black pixels are stored as `1` and white pixels as `0`.
+
+<Link text="Read the p5.js filter() reference" href="https://p5js.org/reference/p5/filter/" />
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/07-resized-image.png", alt: "A still-life image resized to match the canvas height.", caption: "img.resize(0, height)" },
+  { src: "/images/blogs/optical-still-life/08-grayscale-image.png", alt: "The resized still-life image converted to grayscale.", caption: "img.filter(GRAY)" },
+  { src: "/images/blogs/optical-still-life/09-threshold-image.png", alt: "The still-life image converted to black and white with a threshold value of 128.", caption: "img.filter(THRESHOLD, 128 / 255)" }
+]} />
+
+<ImageBox src="/images/blogs/optical-still-life/10-binary-pixel-data.png" alt="A browser console displaying rows of binary pixel values." caption="Binary image data stored as rows of 0 and 1 values" />
+
+<Collapsible title="Binary pixel conversion code">
+
+```jsx
+img.loadPixels();
+
+for (let y = 0; y < img.height; y++) {
+  binaryPixels[y] = [];
+
+  for (let x = 0; x < img.width; x++) {
+    const index = (y * img.width + x) * 4;
+    const brightness = img.pixels[index];
+    binaryPixels[y][x] = brightness === 0 ? 1 : 0;
+  }
+}
+```
+
+</Collapsible>
+
+## Animated Drawing with Flood Fill
+
+Flood fill identifies connected black regions and groups their pixels. These groups can then be revealed in sequence rather than displayed all at once.
+
+<LinkCardGroup items={[
+  { url: "https://www.geeksforgeeks.org/dsa/flood-fill-algorithm/", title: "Flood Fill Algorithm", description: "An overview of connected-region filling.", site: "geeksforgeeks.org" }
+]} />
+
+<ImageBox src="/images/blogs/optical-still-life/11-flood-fill-test.gif" alt="A black-and-white still life being revealed with a flood fill animation." caption="Initial animated flood fill test" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/12-connected-region-test.png", alt: "A small connected black pixel region.", caption: "Connected-region test" },
+  { src: "/images/blogs/optical-still-life/13-flood-fill-regions.png", alt: "Several detected black regions in the thresholded image.", caption: "Detected flood fill regions" }
+]} />
+
+<ImageBox src="/images/blogs/optical-still-life/14-corner-start.gif" alt="A flood fill animation beginning from a corner of the image." caption="Starting the fill from a corner" />
+
+## Contour Detection and Tracing
+
+The system first identifies boundary pixels. It then connects neighboring boundary pixels into ordered paths, draws the paths over time, and starts flood filling after the outline sequence is complete.
+
+```text
+1. Find outline pixels
+   For every black pixel:
+     If a pixel above, below, left, or right is white,
+     mark the current pixel as an outline.
+
+2. Order the outline pixels
+   Scan from top-left to bottom-right.
+   Start at each unvisited outline pixel and follow
+   touching outline pixels in all eight directions.
+
+3. Draw
+   Draw the next pixels from the ordered path each frame.
+   Start flood fill after the outline is complete.
+```
+
+<ImageBox src="/images/blogs/optical-still-life/15-contour-fill.gif" alt="A still-life outline and colored regions appearing through contour tracing and flood fill." caption="50% pixel skipping, random colors, a center start point, and multiple clusters" />
+
+```jsx
+const directions = [
+  [-1, -1], [0, -1], [1, -1],
+  [1, 0],             [1, 1],
+  [0, 1],  [-1, 1],  [-1, 0]
+];
+```
+
+## More Still-Life Results
+
+The same processing and drawing method was tested with different subjects. The paired images compare each animation with its source painting.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/16-potato-animation.gif", alt: "An animated potato still life drawn with contours and flood fill.", caption: "Potato animation" },
+  { src: "/images/blogs/optical-still-life/17-potato-reference.jpg", alt: "The potato still-life source painting.", caption: "Potato reference painting" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/18-flower-animation.gif", alt: "An animated flower still life drawn with contours and flood fill.", caption: "Flower animation" },
+  { src: "/images/blogs/optical-still-life/19-flower-reference.jpg", alt: "The flower still-life source painting.", caption: "Flower reference painting" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/20-lemon-animation.gif", alt: "An animated lemon still life drawn with contours and flood fill.", caption: "Lemon animation" },
+  { src: "/images/blogs/optical-still-life/21-lemon-reference.jpg", alt: "The lemon still-life source painting.", caption: "Lemon reference painting" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/22-orange-animation.gif", alt: "An animated orange still life drawn with contours and flood fill.", caption: "Orange animation" },
+  { src: "/images/blogs/optical-still-life/23-orange-reference.jpg", alt: "The orange still-life source painting.", caption: "Orange reference painting" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/optical-still-life/24-teapot-animation.gif", alt: "An animated teapot still life drawn with contours and flood fill.", caption: "Teapot animation" },
+  { src: "/images/blogs/optical-still-life/25-teapot-reference.jpg", alt: "The teapot still-life source painting.", caption: "Teapot reference painting" }
+]} />

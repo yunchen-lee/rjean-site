@@ -1,0 +1,14 @@
+---
+interface Props { href?: string; src?: string; text: string; external?: boolean; }
+const { href, src, text, external } = Astro.props;
+const url = href ?? src ?? "#";
+const isExternal = external ?? /^https?:\/\//.test(url);
+---
+
+<a class="mdx-link not-prose" href={url} target={isExternal ? "_blank" : undefined} rel={isExternal ? "noreferrer" : undefined}>
+  <span>{text}</span><span aria-hidden="true">↗</span>
+</a>
+
+<style>
+  .mdx-link { display: inline-flex; width: fit-content; max-width: 100%; align-self: flex-start; align-items: center; gap: .4rem; margin: 1rem 0; border-bottom: 1px solid currentColor; font-weight: 600; line-height: 1.5; }
+</style>

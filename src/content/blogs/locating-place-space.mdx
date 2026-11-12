@@ -1,0 +1,330 @@
+---
+title: "Locating Place|Space: Watercolor Shaders and Generative Nature Study in p5.js"
+description: "This article presents a generative nature study built with p5.js from a landscape prompt written by a partner. The scene combines a watercolor sky, layered hills, small trees, and tall redwood trees. A p5.js 2.0 shader, noise functions, blend modes, and procedural geometry create the visual texture and depth. Gaussian functions shape the hills and tree trunks, while a Fibonacci sequence helps organize elements across the landscape. Through sketches and parameter tests, the process explores how language, personal memory, mathematics, and code can work together to interpret an imagined place."
+tags: ["p5.js", "Generative Art", "Shader", "Procedural Landscape"]
+date: 2026-09-10
+state: "Published"
+cover:
+  src: "/images/blogs/locating-place-space/cover.png"
+  alt: "A generative landscape with redwood trunks, layered green hills, and an orange sunset."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Locating Place|Space: Watercolor Shaders and Generative Nature Study in p5.js
+
+本文介紹一項以 p5.js 建立的程序式自然景觀研究，將同伴提供的文字描述轉譯為水彩天空、層疊山丘、小樹與高聳紅木所構成的場景。系統使用 p5.js 2.0 shader、noise 函數、混合模式與程序式幾何建立畫面的質感與深度。Gaussian 函數用來塑造山丘與樹幹，Fibonacci 數列則協助安排景觀中的元素。透過草圖與參數測試，本研究探索語言、個人記憶、數學與程式碼如何共同詮釋一個想像中的地方。
+
+This article presents a generative nature study built with p5.js from a landscape prompt written by a partner. The scene combines a watercolor sky, layered hills, small trees, and tall redwood trees. A p5.js 2.0 shader, noise functions, blend modes, and procedural geometry create the visual texture and depth. Gaussian functions shape the hills and tree trunks, while a Fibonacci sequence helps organize elements across the landscape. Through sketches and parameter tests, the process explores how language, personal memory, mathematics, and code can work together to interpret an imagined place.
+
+<hr />
+
+## Prompt and Interpretation
+
+Queenie described a wide view from the top of a mountain at sunset. Emerald redwoods, oak woodlands, Douglas firs, and rolling hills fill the foreground. In the distance, clouds cover the sky, while pink, blue, and orange light reaches the hills.
+
+<Collapsible title="Assignment instruction">
+
+<ImageBox src="/images/blogs/locating-place-space/01-instruction.png" alt="The assignment instruction for the Locating Place and Space study." />
+
+</Collapsible>
+
+I interpreted the description as five spatial layers: sky, sun, hills, trees on the hills, and redwood trees in the foreground. J. M. W. Turner’s paintings also influenced the wet-on-wet watercolor quality of the sky.
+
+## Result and Reflection
+
+<Link text="View the interactive sketch on OpenProcessing" href="https://openprocessing.org/@YunChenLee/3006059" />
+
+<ImageBox src="/images/blogs/locating-place-space/cover.png" alt="The final generative redwood landscape at sunset." />
+
+<Collapsible title="Reflection">
+
+I enjoyed the prompt because I had visited a redwood forest one month earlier. My own experience was from inside the forest, but Queenie’s description gave me a view that moved from far away to nearby details and then back into the distance. Her careful list of tree types and description of warm light gave the scene both structure and emotion.
+
+I began with a spatial analysis and divided the image into five parts. The sky uses a watercolor shader and noise texture. The sun uses `resetShader()` and a blend mode so it can overlap with the sky. The hills use custom spline shapes, noise, a Gaussian function, and a Fibonacci sequence. Small trees use four spline vertices, while the redwoods extend from the top to the bottom of the canvas.
+
+Because I did not see the original image, my past experience shaped the interpretation. I connected the forms in the prompt with mathematical functions I knew, then spent time adjusting colors and parameters to recreate the peaceful feeling I imagined.
+
+</Collapsible>
+
+<Collapsible title="Feedback">
+
+The class feedback noted the connection between shader code and nature-inspired elements, and highlighted the use of the golden ratio to arrange the mountains. It also identified an unintended movement in the trees and suggested that a more stable scene might feel less algorithmic and more peaceful. Further suggestions included studying morphogenesis algorithms and p5.js compute shaders.
+
+</Collapsible>
+
+<hr />
+
+## Building the Watercolor Sky
+
+I started with the p5.js 2.0 shader example and used a noise-based shader to draw the sky on a rectangle.
+
+<LinkCardGroup items={[
+  { url: "https://p5js.org/reference/p5/shader/", title: "p5.js shader()", description: "The p5.js reference used as the starting point for the shader study.", site: "p5js.org" },
+  { url: "https://www.artrenewal.org/artworks/joseph-mallord-william-turner/venice-looking-east-from-the-guidecca-sunrise/28648", title: "Venice, Looking East from the Guidecca: Sunrise", description: "A watercolor by J. M. W. Turner used as a visual reference.", site: "artrenewal.org" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/02-shader-example.png", alt: "The p5.js shader example." },
+  { src: "/images/blogs/locating-place-space/03-watercolor-sky.png", alt: "An early watercolor sky generated with a shader." }
+]} />
+
+### Draft
+
+<ImageBox src="/images/blogs/locating-place-space/04-watercolor-draft.jpeg" alt="A watercolor landscape draft with notes about the shader and color layers." />
+
+### Noise Scale
+
+I tested several noise scales to compare large color fields with fine texture.
+
+<LinkCardGroup items={[
+  { url: "https://p5js.org/reference/p5/noise/", title: "p5.js noise()", description: "Reference for generating smooth random values.", site: "p5js.org" }
+]} />
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/05-noise-scale-10.png", alt: "Shader test with noise scale 10.", caption: "noise scale = 10" },
+  { src: "/images/blogs/locating-place-space/06-noise-scale-5.png", alt: "Shader test with noise scale 5.", caption: "noise scale = 5" },
+  { src: "/images/blogs/locating-place-space/07-noise-scale-05.png", alt: "Shader test with noise scale 0.5.", caption: "noise scale = 0.5" }
+]} />
+
+<ImageBox src="/images/blogs/locating-place-space/08-watercolor-noise-result.png" alt="A watercolor shader result after adjusting the noise scale." />
+
+### Screen Blend Mode
+
+I added a small noise texture and used screen blending to brighten the combined color layers.
+
+<ImageBox src="/images/blogs/locating-place-space/09-small-noise-texture.png" alt="A fine noise texture with a scale of 50." caption="Small noise texture, noise scale = 50" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/10-before-screen-blend.png", alt: "The watercolor texture before screen blending.", caption: "Before screen blend" },
+  { src: "/images/blogs/locating-place-space/11-after-screen-blend.png", alt: "The watercolor texture after screen blending.", caption: "After screen blend" }
+]} />
+
+```jsx
+let screenColor = [1, 1, 1, 1] -
+  (([1, 1, 1, 1] - mix3) * ([1, 1, 1, 1] - mixb));
+```
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/12-screen-blend-test.png", alt: "A screen blend test with watercolor textures." },
+  { src: "/images/blogs/locating-place-space/13-watercolor-rectangle.png", alt: "The watercolor shader applied to a larger rectangle." }
+]} />
+
+## Adding the Sun
+
+<Highlight>I used `resetShader()` and `blendMode()` to place the sun over the shader output. A slight overlap helps the sun feel connected to the sky.</Highlight>
+
+<LinkCardGroup items={[
+  { url: "https://p5js.org/reference/p5/blendMode/", title: "p5.js blendMode()", description: "Reference for combining colors with different blend modes.", site: "p5js.org" },
+  { url: "https://p5js.org/reference/p5/resetShader/", title: "p5.js resetShader()", description: "Reference for returning to the default shader.", site: "p5js.org" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/14-sun-screen.png", alt: "A sun drawn with screen blend mode.", caption: "SCREEN" },
+  { src: "/images/blogs/locating-place-space/15-sun-overlay.png", alt: "A sun drawn with overlay blend mode.", caption: "OVERLAY" }
+]} />
+
+## Generating the Hills
+
+<Highlight>I used `beginShape()`, `splineVertex()`, and `endShape()` to create custom hills. Noise makes the edges less regular, a Gaussian function controls the curve, and a Fibonacci sequence organizes the number of hills in each row.</Highlight>
+
+<ImageBox src="/images/blogs/locating-place-space/16-basic-hill.png" alt="A basic hill made with beginShape, vertex, and endShape." />
+
+### Gaussian Curves and Spline Vertices
+
+<Link text="Read the p5.js splineVertex() reference" href="https://p5js.org/reference/p5/splineVertex/" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/17-gaussian-reference.png", alt: "A hand-drawn Gaussian curve study." },
+  { src: "/images/blogs/locating-place-space/18-spline-hill.png", alt: "A hill changing from straight vertices to spline vertices.", caption: "vertex() to splineVertex()" }
+]} />
+
+```jsx
+function gaussianPDF(x, peak = 0.5, width = 0.3) {
+  const exponent = -((x - peak) ** 2) / (2 * width ** 2);
+  return Math.exp(exponent);
+}
+```
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/19-textured-hill.png", alt: "A hill shape with watercolor texture." },
+  { src: "/images/blogs/locating-place-space/20-layered-hills.png", alt: "Several textured hills layered into a landscape." }
+]} />
+
+### Color Variation
+
+I used HSB color values to create related variations from one base color.
+
+<Link text="Read the p5.js colorMode() reference" href="https://p5js.org/reference/p5/colorMode/" />
+
+<ImageBox src="/images/blogs/locating-place-space/21-color-variation.png" alt="A hill and sun test using HSB color variations." />
+
+<Collapsible title="code">
+
+```jsx
+function expandColor(clr, fac = 1) {
+  const clrArr = [];
+  push();
+  colorMode(HSB);
+  const scl = 10;
+  const hScl = scl * fac;
+
+  for (let i = 0; i < 4; i++) {
+    const h = hue(color(clr));
+    const s = saturation(color(clr));
+    const b = brightness(color(clr));
+    const newClr = color(
+      h + random(-hScl, hScl),
+      s + random(-scl, scl),
+      b + random(-scl, scl)
+    );
+    clrArr.push(newClr.toString('#rrggbb'));
+  }
+  pop();
+  return clrArr;
+}
+```
+
+</Collapsible>
+
+### Noise Seed
+
+<Link text="Read the p5.js noiseSeed() reference" href="https://p5js.org/reference/p5/noiseSeed/" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/22-without-noise-seed.png", alt: "Layered hills before adding a fixed noise seed.", caption: "Without a fixed noise seed" },
+  { src: "/images/blogs/locating-place-space/23-with-noise-seed.png", alt: "Layered hills after adding a fixed noise seed.", caption: "With noiseSeed()" }
+]} />
+
+### Fibonacci Distribution
+
+I used Fibonacci values to reduce the number of hills in rows that are farther from the viewer.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/24-fibonacci-reference.png", alt: "A Fibonacci spiral reference diagram." },
+  { src: "/images/blogs/locating-place-space/25-fibonacci-distribution.png", alt: "Hills distributed in rows with Fibonacci values." }
+]} />
+
+```jsx
+function fibonacci(n) {
+  let a = 0;
+  let b = 1;
+  for (let i = 0; i < n; i++) {
+    [a, b] = [b, a + b];
+  }
+  return a;
+}
+```
+
+### Parameter Studies
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/26-hill-width-test.png", alt: "A test of hill width parameters.", caption: "Width" },
+  { src: "/images/blogs/locating-place-space/27-hill-height-test.png", alt: "A test of hill height parameters.", caption: "Height" },
+  { src: "/images/blogs/locating-place-space/28-hill-span-test.png", alt: "A test of hill span and amplitude parameters.", caption: "Span and amplitude" }
+]} />
+
+<ImageBox src="/images/blogs/locating-place-space/29-hill-parameter-result.png" alt="A landscape created after adjusting hill parameters." />
+
+<Collapsible title="Hill distribution code">
+
+```jsx
+const row = 6;
+for (let i = 0; i < row; i++) {
+  const num = fibonacci(2 + row - i);
+
+  for (let j = 0; j < num; j++) {
+    const hill = new RJ_Hill({
+      x: random(-width / 2 - padding, width / 2 - padding),
+      y: -height / 6 + i * 50 + random(50) + 20,
+      w: pow(i, 2) * 30 + random(20, 50),
+      h: pow(i, 2) * 3,
+      a: random(0.5, 1),
+      noiseScale: 1,
+      span: i * 3 + 5,
+      ampScl: i * 20 + 20
+    });
+    list_hill.push(hill);
+  }
+}
+```
+
+</Collapsible>
+
+### Refining the Composition
+
+I continued testing the palette, row count, position, scale, and sun placement until the layers felt deeper and more balanced.
+
+<ImageBox src="/images/blogs/locating-place-space/30-green-palette-test.png" alt="A green color palette test for the hills." />
+
+<ImageBox src="/images/blogs/locating-place-space/31-layered-green-hills.png" alt="A landscape with many layered green hills." />
+
+<ImageBox src="/images/blogs/locating-place-space/32-hills-with-sun.png" alt="Layered green hills with an orange sun." />
+
+<ImageBox src="/images/blogs/locating-place-space/33-hills-final-distribution.png" alt="The final hill distribution used in the landscape." />
+
+## Drawing Trees
+
+<Highlight>I used `beginShape()` and four `splineVertex()` points to draw each leaf shape.</Highlight>
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/34-tree-leaf-1.png", alt: "The first tree leaf shape test." },
+  { src: "/images/blogs/locating-place-space/35-tree-leaf-2.png", alt: "The second tree leaf shape test." },
+  { src: "/images/blogs/locating-place-space/36-tree-leaf-3.png", alt: "The third tree leaf shape test." }
+]} />
+
+<ImageBox src="/images/blogs/locating-place-space/37-tree-leaf-4.png" alt="Small trees distributed across the layered hills." />
+
+<Collapsible title="Tree shape code">
+
+```jsx
+beginShape();
+splineVertex(0, 0, 0.5, 0);
+splineVertex(-this.w / 2 + random(-this.ampScl, this.ampScl),
+  this.h / 2 + random(-this.ampScl, this.ampScl), 0, 0.5);
+splineVertex(0, this.h, 0.5, 1);
+splineVertex(this.w / 2 + random(-this.ampScl, this.ampScl),
+  this.h / 2 + random(-this.ampScl, this.ampScl), 1, 0.5);
+endShape(CLOSE);
+```
+
+</Collapsible>
+
+## Constructing the Redwood Trees
+
+<Highlight>Redwood trees are very tall, so I made them cross the canvas from top to bottom. A Gaussian function widens the lower trunk, while rotated rectangles form the branches.</Highlight>
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/locating-place-space/38-redwood-study.jpeg", alt: "A hand-drawn study of a redwood trunk using a Gaussian curve." },
+  { src: "/images/blogs/locating-place-space/39-redwood-generation.png", alt: "Generated redwood trunks in front of the finished landscape." }
+]} />
+
+<Collapsible title="Redwood shape code">
+
+```jsx
+beginShape();
+splineVertex(0, 0, 0, 0);
+
+for (let i = 0; i < this.span; i++) {
+  const x = -this.w * gaussianPDF(i / this.span * this.guassianFac);
+  const v = i / this.span;
+  splineVertex(x + random(-xShift, xShift), this.h * v, 0, v);
+}
+
+for (let i = this.span - 1; i >= 0; i--) {
+  const x = this.w * gaussianPDF(i / this.span * this.guassianFac);
+  const v = i / this.span;
+  splineVertex(x + random(-xShift, xShift), this.h * v, 1, v);
+}
+
+endShape(CLOSE);
+```
+
+</Collapsible>
+
+## AI Assistance
+
+AI support was used to explain a p5.js shader example, draft Gaussian and Fibonacci functions, send parameters to a shader with uniforms, convert hexadecimal colors for shader input, and return from a custom shader before using `blendMode()`.
+

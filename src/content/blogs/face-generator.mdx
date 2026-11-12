@@ -1,0 +1,212 @@
+---
+title: "Face Generator: Interactive Portrait Drawing with Compute Shaders (GPU) in p5.js"
+description: "This article presents an interactive face generator built with p5.js and WebGPU compute shaders. A hand-drawn portrait is represented as a collection of curves and point data. Multiple face views are prepared in Procreate and Rhino/Grasshopper, then organized as faces, lines, and points in JSON. A compute shader updates many particles in parallel, while noise and style parameters create crayon-like line qualities. The horizontal mouse position selects different face views, producing the illusion of a rotating portrait. This study explores how GPU particle systems can combine responsive interaction with a hand-drawn visual language."
+tags: ["p5.js", "Compute Shader", "WebGPU", "Particle System"]
+date: 2026-09-24
+state: "Published"
+cover:
+  src: "/images/blogs/face-generator/cover.gif"
+  alt: "An animated hand-drawn face formed by colorful particles."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Face Generator: Interactive Portrait Drawing with Compute Shaders (GPU) in p5.js
+
+本文介紹一個使用 p5.js 與 WebGPU compute shader 建立的互動式臉部生成器。手繪肖像被表示為多組曲線與點資料。不同角度的臉部先在 Procreate 與 Rhino/Grasshopper 中整理，再以臉部、線條與點的階層儲存為 JSON。Compute shader 讓大量粒子可以平行更新，noise 與線條參數則產生類似蠟筆的手繪質感。水平移動滑鼠會切換不同角度的臉部，使肖像看起來正在旋轉。本研究探索 GPU 粒子系統如何同時支援即時互動與手繪視覺語言。
+
+This article presents an interactive face generator built with p5.js and WebGPU compute shaders. A hand-drawn portrait is represented as a collection of curves and point data. Multiple face views are prepared in Procreate and Rhino/Grasshopper, then organized as faces, lines, and points in JSON. A compute shader updates many particles in parallel, while noise and style parameters create crayon-like line qualities. The horizontal mouse position selects different face views, producing the illusion of a rotating portrait. This study explores how GPU particle systems can combine responsive interaction with a hand-drawn visual language.
+
+<hr />
+
+## Idea and Design Sketches
+
+The project began with three goals:
+
+- Create a two-dimensional, hand-drawn, crayon-like style.
+- Create the illusion of three-dimensional rotation when the mouse moves horizontally.
+- Explore a compute shader for controlling many particles in real time.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/face-generator/01-design-animation.gif", alt: "An animated hand-drawn face rotating through several views." },
+  { src: "/images/blogs/face-generator/02-design-sketch-a.png", alt: "A design sketch showing a side view of the face generator character." }
+]} />
+
+<ImageBox src="/images/blogs/face-generator/03-design-sketch-b.png" alt="Two small face sketches exploring hair, eyes, and facial proportions." />
+
+## Result and Reflection
+
+<Link text="View the interactive sketch on OpenProcessing" href="https://openprocessing.org/@YunChenLee/3020783" />
+
+<ImageBox src="/images/blogs/face-generator/cover.gif" alt="The final interactive particle portrait moving between face views." />
+
+This was my first experiment using a compute shader to control a particle system. I am interested in point clouds, 3D Gaussian splatting, and visual patterns made from many small elements. Before this study, it was difficult for me to draw and interact with a large number of points in real time.
+
+The main challenge was deciding which calculations should remain on the CPU and which should move to the GPU. The CPU prepares the face, line, and style information. The GPU updates the particle positions every frame. This division gave me a clearer way to think about future experiments with cellular automata and other algorithms in p5.js.
+
+<hr />
+
+## Compute Shader Experiments
+
+I began with the p5.js compute shader example. The first checkpoints were to place particles on a circle, test orbit control, create several curve distributions with noise, and trigger movement by dragging the mouse.
+
+<LinkCardGroup items={[
+  { url: "https://p5js.org/reference/p5/compute/", title: "p5.js compute()", description: "The p5.js WebGPU compute shader reference used as the starting point.", site: "p5js.org" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/face-generator/04-circle-test.gif", alt: "Particles moving into a circular arrangement." },
+  { src: "/images/blogs/face-generator/05-orbit-control.gif", alt: "A particle circle viewed with orbit control." }
+]} />
+
+<ImageBox src="/images/blogs/face-generator/06-drag-effect.gif" alt="Particles changing their target positions after a mouse drag." />
+
+### Circular Particle Targets
+
+The CPU creates a fixed angle for each particle and sends target positions to GPU storage. The compute shader moves every particle toward its target in parallel.
+
+<Collapsible title="Circle compute shader code">
+
+```jsx
+function simulate() {
+  const posData = uniformStorage(particles);
+  const targetData = uniformStorage(targets);
+  const idx = index.x;
+  const pos = posData[idx].position;
+  const target = targetData[idx].targetPos;
+
+  posData[idx].position = mix(pos, target, 0.05);
+}
+
+function updateTargets() {
+  const newTargets = angles.map((angle) => ({
+    targetPos: createVector(
+      cos(angle) * radius,
+      sin(angle) * radius,
+      0
+    )
+  }));
+
+  targets.update(newTargets);
+}
+```
+
+</Collapsible>
+
+### Testing Line Styles
+
+Next, I assigned particles to three lines. Each particle stores a line ID, a position along the line, and a stable noise seed. Different noise frequencies produce smooth, grainy, or rough line qualities.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/face-generator/07-circle-particles.png", alt: "Three straight particle lines with different noise styles." },
+  { src: "/images/blogs/face-generator/08-line-style-tests.png", alt: "Three curved particle lines with different noise styles." }
+]} />
+
+<Collapsible title="Line style compute shader code">
+
+```jsx
+function simulate() {
+  const posData = uniformStorage(particles);
+  const metaData = uniformStorage(meta);
+  const idx = index.x;
+  const sid = metaData[idx].strokeId;
+  const t = metaData[idx].t;
+  const seed = metaData[idx].seed;
+
+  let x = -LINE_LEN / 2.0 + t * LINE_LEN;
+  let target = vec3(0.0, 0.0, 0.0);
+
+  if (sid < 0.5) {
+    const n = noise(t * 3.0, seed) - 0.5;
+    target = vec3(x, -150.0 + n * 50.0, 0.0);
+  } else if (sid < 1.5) {
+    const nx = noise(t * 30.0, seed) - 0.5;
+    const ny = noise(t * 30.0, seed + 100.0) - 0.5;
+    target = vec3(x + nx * 15.0, ny * 25.0, 0.0);
+  } else {
+    const largeNoise = noise(t * 20.0, seed) - 0.5;
+    const smallNoise = noise(t * 25.0, seed + 200.0) - 0.5;
+    target = vec3(x + smallNoise * 15.0,
+      150.0 + largeNoise * 5.0 + smallNoise * 2.0, 0.0);
+  }
+
+  posData[idx].position = mix(posData[idx].position, target, 0.08);
+}
+```
+
+</Collapsible>
+
+## Preparing the Face Data
+
+I first used an AI tool to create a simple three-dimensional head based on the design sketch. I then generated several views in Procreate and recreated each view as curves in Rhino/Grasshopper.
+
+<ImageBox src="/images/blogs/face-generator/09-ai-head-views.png" alt="Multiple rendered views of a simple three-dimensional head." />
+
+<ImageBox src="/images/blogs/face-generator/10-procreate-face-views.png" alt="A sequence of hand-drawn face views prepared in Procreate." />
+
+<ImageBox src="/images/blogs/face-generator/11-rhino-face-curves.png" alt="Twelve face views recreated as curves in Rhino." />
+
+### From Curves to Points
+
+The curves were divided into point data in Grasshopper. Each point also stores a normal vector that can control the direction and appearance of its particle.
+
+<ImageBox src="/images/blogs/face-generator/12-divided-points.png" alt="A face curve divided into points with normal vectors in Grasshopper." caption="Divided points and normal vectors" />
+
+<ImageBox src="/images/blogs/face-generator/13-json-one-line.png" alt="A Grasshopper definition that converts one line of point data into JSON." caption="JSON preparation for one line" />
+
+<ImageBox src="/images/blogs/face-generator/14-json-twelve-faces.png" alt="A Grasshopper definition that exports point data for twelve face views." caption="Exporting twelve faces" />
+
+### JSON Data Structure
+
+I organized the data as `Face → Lines → Points`. Each face has an ID, and each line has its own style parameters and list of points.
+
+<ImageBox src="/images/blogs/face-generator/15-json-structure.jpg" alt="A hand-drawn diagram of the face, line, and point data hierarchy." />
+
+```jsx
+[
+  {
+    id: 0,
+    lines: [
+      {
+        styleParameters: 0,
+        points: [
+          { x, y, vx, vy },
+          // ...
+        ]
+      },
+      { styleParameters: 1, points: [] },
+      { styleParameters: 2, points: [] }
+    ]
+  },
+  { id: 1, lines: [] }
+]
+```
+
+## Drawing the Interactive Face
+
+The horizontal mouse position selects different face IDs. Moving left or right changes the view and creates the illusion that the face is rotating.
+
+I tested line weight, noise, and particle radius before applying the settings to the full portrait.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/face-generator/16-line-weight-037.png", alt: "A face outline rendered with a line weight of 0.37.", caption: "Line weight: 0.37" },
+  { src: "/images/blogs/face-generator/17-line-noise.png", alt: "A face outline after adding noise to particle positions.", caption: "Added noise" },
+  { src: "/images/blogs/face-generator/18-line-weight-001.png", alt: "A denser face outline rendered with a line weight of 0.01.", caption: "Line weight: 0.01" },
+  { src: "/images/blogs/face-generator/19-random-radius.png", alt: "A face outline rendered with random particle radius.", caption: "Random radius in world-space scale" }
+]} />
+
+<ImageBox src="/images/blogs/face-generator/20-face-render-detail.png" alt="A detailed particle rendering of one face outline." />
+
+<ImageBox src="/images/blogs/face-generator/21-face-render-result.png" alt="The colorful final face rendered with crayon-like particles." />
+
+## References
+
+<LinkCardGroup items={[
+  { url: "https://github.com/ReshotAI/gaussian-painters", title: "Gaussian Painters", description: "A reference project for particle-based image rendering.", site: "github.com" },
+  { url: "https://www.thecvf-art.com/archive.php?year=2024", title: "2024 CVPR Art Gallery", description: "A collection of works connecting computer vision and visual art.", site: "thecvf-art.com" },
+  { url: "https://p5js.org/reference/p5/compute/", title: "p5.js compute()", description: "Reference documentation for WebGPU compute shaders in p5.js.", site: "p5js.org" }
+]} />
+
+<ImageBox src="/images/blogs/face-generator/22-gaussian-painters-reference.png" alt="A painterly Mona Lisa image shown as a visual reference for particle rendering." />

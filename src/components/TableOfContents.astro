@@ -1,0 +1,57 @@
+---
+interface Props { title?: string; }
+const { title = "Contents" } = Astro.props;
+---
+
+<nav class="table-of-contents not-prose" aria-label={title} data-table-of-contents>
+  <p>{title}</p>
+  <ol></ol>
+</nav>
+
+<script>
+  const slugify = (value: string) => value.toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+  const buildTablesOfContents = () => {
+    document.querySelectorAll<HTMLElement>("[data-table-of-contents]").forEach((toc) => {
+      const article = toc.closest(".blog-article") ?? document;
+      const list = toc.querySelector("ol");
+      const headings = article.querySelectorAll<HTMLHeadingElement>("h2, h3");
+      const used = new Set<string>();
+
+      list?.replaceChildren();
+      toc.hidden = headings.length === 0;
+
+      headings.forEach((heading) => {
+        let id = heading.id || slugify(heading.textContent ?? "section") || "section";
+        const base = id;
+        let count = 2;
+        let existing = document.getElementById(id);
+        while (used.has(id) || (existing && existing !== heading)) {
+          id = `${base}-${count++}`;
+          existing = document.getElementById(id);
+        }
+        used.add(id);
+        heading.id = id;
+        const item = document.createElement("li");
+        if (heading.tagName === "H3") item.className = "is-child";
+        const link = document.createElement("a");
+        link.href = `#${id}`;
+        link.textContent = heading.textContent;
+        item.append(link);
+        list?.append(item);
+      });
+    });
+  };
+
+  buildTablesOfContents();
+  document.addEventListener("astro:page-load", buildTablesOfContents);
+</script>
+
+<style>
+  .table-of-contents { margin: 1.5rem 0 3rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--border-color); background: var(--color-placeholder); }
+  .table-of-contents p { margin: 0 0 .65rem; font-size: .78rem; font-weight: 600; }
+  .table-of-contents ol { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+  .table-of-contents li { line-height: 1.4; }
+  .table-of-contents .is-child { padding-left: 1.25rem; }
+  .table-of-contents a { color: var(--color-text-alt); font-size: .78rem; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  .table-of-contents a:hover { color: var(--color-text); }
+</style>

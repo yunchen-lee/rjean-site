@@ -8,12 +8,7 @@ type Props = {
 const { workshop } = Astro.props;
 ---
 
-<a
-  href={`/workshops/${workshop.id}`}
-  class="portfolio-card"
-  data-astro-prefetch
-  aria-label={workshop.data.title}
->
+<div class="portfolio-card">
   <img
     src={workshop.data.cover.src}
     alt={workshop.data.cover.alt}
@@ -23,23 +18,14 @@ const { workshop } = Astro.props;
   />
   <div class="portfolio-card__body">
     <h2 class="portfolio-card__title">{workshop.data.title}</h2>
-    <p class="portfolio-card__description">{workshop.data.description}</p>
+    <p class="portfolio-card__context">{workshop.data.context}</p>
   </div>
-</a>
+</div>
 
 <style>
   .portfolio-card {
     display: grid;
     gap: 0.75rem;
-    color: inherit;
-    transition:
-      transform 0.5s ease,
-      opacity 0.5s ease;
-  }
-
-  .portfolio-card:hover {
-    transform: translateY(-2px);
-    opacity: 0.9;
     color: inherit;
   }
 
@@ -59,10 +45,11 @@ const { workshop } = Astro.props;
   .portfolio-card__title {
     margin: 0;
     font-size: var(--font-size-card-title);
+    font-weight: 700;
     line-height: var(--line-height-card-title);
   }
 
-  .portfolio-card__description {
+  .portfolio-card__context {
     margin: 0;
     color: var(--color-text-alt);
     line-height: 1.35;

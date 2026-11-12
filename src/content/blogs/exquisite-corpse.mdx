@@ -1,0 +1,198 @@
+---
+title: "Exquisite Corpse: GIF Pixel Art and Animation in p5.js"
+description: "This article presents a collaborative Exquisite Corpse project that combines animated GIF body parts into a new pixel-art character in p5.js. A shared function samples GIF frames as coordinate and color grids, allowing each collaborator to create different visual effects from the same data structure. Separate ranges define the head, body, and legs, while CMY color separation and multiply blending produce a print-like appearance. Circular easing functions control how colored pixels move into place. The project explores reusable functions, parameter-based variation, and collaborative coding through a shared animation framework."
+tags: ["p5.js", "Pixel Art", "GIF Animation", "Collaborative Coding"]
+date: 2026-10-08
+state: "Published"
+cover:
+  src: "/images/blogs/exquisite-corpse/cover.gif"
+  alt: "An animated pixel-art pigeon assembled from different GIF body parts."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Exquisite Corpse: GIF Pixel Art and Animation in p5.js
+
+本文介紹一個合作完成的 Exquisite Corpse 計畫，使用 p5.js 將不同 GIF 的身體部位組合成新的像素角色。共用函數會把 GIF 畫格取樣為座標與顏色網格，讓每位合作者能以相同資料結構發展不同視覺效果。頭部、身體與腿部由不同範圍控制，CMY 色彩分離與 Multiply 混合模式則產生類似印刷的外觀。圓形 easing 函數用來控制彩色像素移動到目標位置的過程。本研究透過共享動畫框架，探索可重複使用的函數、參數變化與合作式程式設計。
+
+This article presents a collaborative Exquisite Corpse project that combines animated GIF body parts into a new pixel-art character in p5.js. A shared function samples GIF frames as coordinate and color grids, allowing each collaborator to create different visual effects from the same data structure. Separate ranges define the head, body, and legs, while CMY color separation and multiply blending produce a print-like appearance. Circular easing functions control how colored pixels move into place. The project explores reusable functions, parameter-based variation, and collaborative coding through a shared animation framework.
+
+<hr />
+
+## The Legendary NYC Pigeon
+
+This is the legendary pigeon of New York City. Only one in a million pigeons looks like this.
+
+With a Totoro-like body and ostrich legs, contributed by Tinyi, this pigeon has a special ability. Unlike other pigeons, it cannot fly, but it can run at almost the speed of light. If something strange runs through the streets of New York City, it may be the legendary pigeon.
+
+<ImageBox src="/images/blogs/exquisite-corpse/cover.gif" alt="The legendary NYC pigeon running as an animated pixel-art character." caption="The final Exquisite Corpse character: the legendary NYC pigeon." />
+
+<Link text="View the interactive sketch on OpenProcessing" href="https://openprocessing.org/@YunChenLee/3030916" />
+
+<Highlight>My partners were Helen and Tinyi. Tinyi’s original character sketch is available on OpenProcessing.</Highlight>
+
+<Link text="View Tinyi’s sketch" href="https://openprocessing.org/@tinyih/3030358" />
+
+### Idea
+
+We developed the idea together. Helen wanted to explore pixel art, and we thought it would be interesting to create strange characters by combining GIFs from different sources. The visual differences between the GIFs remain visible, but the shared pixel-art effect makes the parts feel like one creature.
+
+### Process and Learning Goals
+
+We collected GIFs and designed our characters together. I wrote the basic functions that convert GIFs into grids and extract coordinates and colors. Each collaborator then used the same data to create a different visual effect before exchanging the results and combining them.
+
+The project focused on three goals:
+
+1. Break the program into smaller reusable functions.
+2. Use shared grid data with different parameters and visual effects.
+3. Support collaborative coding through a common framework.
+
+### Reflection
+
+The shared template for pixel art and ASCII art helped us understand how functions make code reusable and easier to exchange. I was also interested in another group’s approach, where each person continued coding from the previous person’s work. This creates a second form of Exquisite Corpse through the code itself.
+
+GIFs also provided a simple way to explore animation without drawing every frame. For this private classroom project, we transformed collected animations into new visual styles and character combinations.
+
+<hr />
+
+## GIF Collection and Character Assembly
+
+We collected animated GIFs and combined different heads, bodies, and legs to create new characters.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/exquisite-corpse/01-gif-collection.png", alt: "A collection of animated GIF characters used as source material.", caption: "Collected GIF source material" },
+  { src: "/images/blogs/exquisite-corpse/02-character-assembly.png", alt: "Different GIF heads, bodies, and legs combined into character sketches.", caption: "Early character assembly tests" }
+]} />
+
+## Converting GIF Frames to a Pixel Grid
+
+The `drawGifAsGrid()` function samples colors and coordinates from a GIF frame. It maps each canvas cell to a location in the source image, reads that color, and passes the result to a reusable pixel-effect function.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/exquisite-corpse/03-empty-pixel-grid.png", alt: "An empty rectangular sampling grid.", caption: "Sampling grid" },
+  { src: "/images/blogs/exquisite-corpse/04-sampled-pixel-grid.png", alt: "A GIF image reconstructed with sampled colored squares.", caption: "GIF colors sampled into the grid" }
+]} />
+
+<Collapsible title="GIF sampling code">
+
+```jsx
+let sourceGif;
+const gridSize = 20;
+
+async function setup() {
+  createCanvas(600, 600);
+  sourceGif = await loadImage('3.gif');
+}
+
+function draw() {
+  background(255);
+  sourceGif.loadPixels();
+  drawGifAsGrid(sourceGif, 0, height / 3, headEffect);
+}
+
+function drawGifAsGrid(gif, startY, endY, pixelFunction) {
+  for (let y = 0; y < height; y += gridSize) {
+    for (let x = 0; x < width; x += gridSize) {
+      const imageX = floor(map(x, 0, width, 0, gif.width));
+      const imageY = floor(map(y, 0, height, 0, gif.height));
+      const color = gif.get(imageX, imageY);
+
+      if (y >= startY && y < endY) {
+        pixelFunction(x, y, color);
+      }
+    }
+  }
+}
+
+function headEffect(x, y, color) {
+  fill(color);
+  rect(x, y, gridSize, gridSize);
+}
+```
+
+</Collapsible>
+
+## Controlling GIF Animation
+
+### Selecting Frames with setFrame()
+
+The `setFrame()` method selects one frame from the GIF. Connecting the frame index to `frameCount` allows the pixel grid to follow the original animation.
+
+<ImageBox src="/images/blogs/exquisite-corpse/05-set-frame.png" alt="A pixel-grid image displayed at GIF frame five." caption="jean_gif.setFrame(5)" />
+
+<ImageBox src="/images/blogs/exquisite-corpse/06-frame-animation.gif" alt="A GIF character animated after its frames are sampled into a pixel grid." caption="Cycling through sampled GIF frames" />
+
+```jsx
+jean_gif.setFrame(
+  int(frameCount / 10) % jean_gif.numFrames()
+);
+jean_gif.loadPixels();
+```
+
+## Composing the Character
+
+Separate normalized ranges define the head, upper body, and legs. Each range can use a different GIF, which lets the three collaborators exchange and combine their parts.
+
+<ImageBox src="/images/blogs/exquisite-corpse/07-body-range-composition.png" alt="A diagram showing different GIF sources combined into one character body." caption="Head, body, and leg ranges assembled from different GIFs" />
+
+```jsx
+const cutA = 0.345;
+const cutB = 0.57;
+
+const headRange = [0, cutA];
+const bodyRange = [cutA, cutB];
+const legRange = [cutB, 1];
+```
+
+<ImageBox src="/images/blogs/exquisite-corpse/08-gif-to-pixel.gif" alt="Three animated GIF sections converted into a combined pixel character." caption="GIF body parts converted into one shared pixel grid" />
+
+## CMY Color Effect
+
+CMY color separation and `MULTIPLY` blending create a print-like effect. The color channels can move independently before returning to the final pixel image.
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/exquisite-corpse/09-cmy-test-a.png", alt: "The first CMY channel separation test.", caption: "CMY separation test 1" },
+  { src: "/images/blogs/exquisite-corpse/10-cmy-test-b.png", alt: "The second CMY channel separation test.", caption: "CMY separation test 2" },
+  { src: "/images/blogs/exquisite-corpse/11-cmy-test-c.png", alt: "The third CMY channel separation test.", caption: "CMY separation test 3" }
+]} />
+
+```jsx
+blendMode(SCREEN);
+background(255);
+
+blendMode(MULTIPLY);
+drawPixelArt(headGrid, pixelEffect);
+drawPixelArt(bodyGrid, pixelEffect);
+drawPixelArt(legGrid, pixelEffect);
+```
+
+## Animation and Easing
+
+Easing functions control how colored pixels transition from their starting positions to the final character grid.
+
+<LinkCardGroup items={[
+  { url: "https://easings.net/#easeOutCirc", title: "Easing Functions Cheat Sheet", description: "Reference for circular easing functions used in the animation.", site: "easings.net" }
+]} />
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/exquisite-corpse/12-easing-reference-a.png", alt: "A circular easing curve diagram.", caption: "Circular easing curve" },
+  { src: "/images/blogs/exquisite-corpse/13-easing-reference-b.png", alt: "A color-gradient animation reference.", caption: "Transition reference" },
+  { src: "/images/blogs/exquisite-corpse/14-easing-reference-c.png", alt: "Documentation for the easeOutCirc function.", caption: "easeOutCirc reference" }
+]} />
+
+```jsx
+function easeOutCirc(t) {
+  return sqrt(1 - pow(t - 1, 2));
+}
+
+function easeInCirc(t) {
+  return 1 - sqrt(1 - pow(t, 2));
+}
+```
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/exquisite-corpse/15-linear-animation.gif", alt: "The pixel character animated with linear interpolation.", caption: "Linear" },
+  { src: "/images/blogs/exquisite-corpse/16-eased-animation.gif", alt: "The pixel character animated with a circular easing function.", caption: "Easing function" }
+]} />

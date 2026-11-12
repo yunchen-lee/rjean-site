@@ -88,6 +88,10 @@ export default function RectangleCard({
         }
 
         .workshop-card__description {
+          display: -webkit-box;
+          overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
           margin: 0;
           font-size: var(--font-size-card-body);
           line-height: var(--line-height-card-body);
@@ -104,7 +108,7 @@ export default function RectangleCard({
         @media screen and (min-width: 425px) {
           .workshop-card__inner {
             display: grid;
-            grid-template-columns: 1fr 2fr;
+            grid-template-columns: 1fr 3fr;
             gap: 1rem;
             align-items: start;
           }

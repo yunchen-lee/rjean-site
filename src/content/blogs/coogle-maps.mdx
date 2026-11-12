@@ -1,0 +1,156 @@
+---
+title: "Coogle Maps: An Interactive Pigeon Data Portrait of New York City"
+description: "This article presents Coogle Maps, an interactive data portrait that explores pigeon activity in New York City. The project connects pigeon-related 311 complaints with nearby restaurants, parks, buildings, street furniture, and other public data. Mapbox vector tiles are rendered as a point-cloud landscape in WebGL, while animated pigeon models mark areas of interest. A reusable Codex skill uses the local records to create short pigeon reviews without adding unsupported details. The project shows how open urban data, interactive mapping, and generated text can support a playful view of the city from a pigeon’s perspective."
+tags: ["p5.js", "Data Visualization", "Mapbox", "WebGL", "Open Data"]
+date: 2026-10-22
+state: "Published"
+cover:
+  src: "/images/blogs/coogle-maps/13-landmark-overview.png"
+  alt: "The Coogle Maps interface showing pigeons, landmarks, and complaint markers across New York City."
+previewCover:
+  src: "/images/blogs/coogle-maps/cover.gif"
+  alt: "Animated pigeons walking across a green and gray point-cloud map."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Coogle Maps: An Interactive Pigeon Data Portrait of New York City
+
+本文介紹 Coogle Maps，一個探索紐約市鴿子活動的互動式資料肖像。此專案將與鴿子相關的 311 投訴，連結到附近的餐廳、公園、建築、街道設施與其他公共資料。Mapbox vector tiles 透過 WebGL 被轉換為點雲地景，動畫鴿子模型則標示重要區域。可重複使用的 Codex skill 依據在地資料產生簡短的鴿子評論，同時避免加入資料中沒有的細節。本專案展示開放城市資料、互動地圖與生成文字如何共同建立一個從鴿子視角觀看城市的趣味方式。
+
+This article presents Coogle Maps, an interactive data portrait that explores pigeon activity in New York City. The project connects pigeon-related 311 complaints with nearby restaurants, parks, buildings, street furniture, and other public data. Mapbox vector tiles are rendered as a point-cloud landscape in WebGL, while animated pigeon models mark areas of interest. A reusable Codex skill uses the local records to create short pigeon reviews without adding unsupported details. The project shows how open urban data, interactive mapping, and generated text can support a playful view of the city from a pigeon’s perspective.
+
+<hr />
+
+## Result
+
+<Link text="Open Coogle Maps" href="https://yunchen-lee.github.io/Coogle-Map/" />
+
+<Link text="View the source code on GitHub" href="https://github.com/yunchen-lee/Coogle-Map" />
+
+<IframeCardGroup items={[
+  { url: "https://youtu.be/PzlS0_2BimQ", title: "Coogle Maps project demonstration" }
+]} />
+
+## Idea
+
+At first, I wanted to make a map about pigeons, so I searched NYC Open Data. The available pigeon data mainly recorded complaints. People reported that there were too many pigeons or that they were leaving waste in public places. This made me wonder why pigeons gather in these locations.
+
+<LinkCardGroup items={[
+  { url: "https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9", title: "311 Service Requests from 2020 to Present", description: "NYC Open Data records used to locate recent pigeon-related complaints.", site: "data.cityofnewyork.us" },
+  { url: "https://data.cityofnewyork.us/d/76ig-c548", title: "311 Service Requests from 2010 to 2019", description: "Historical NYC 311 records used in the project research.", site: "data.cityofnewyork.us" }
+]} />
+
+<ImageBox src="/images/blogs/coogle-maps/01-nyc-open-data.png" alt="The NYC Open Data page for 311 service requests." caption="Reviewing pigeon-related records in NYC Open Data" />
+
+I then watched several videos about pigeons in New York City. I learned that pigeons look for food, so they often gather near street vendors and restaurants. They also rest on the windowsills of older buildings. Parks provide more open space away from cars and busy streets.
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=ORpA0U13nwM", title: "Research reference: pigeons in New York City" },
+  { url: "https://www.youtube.com/watch?v=APC5RQ29V2I", title: "Research reference: urban pigeon behavior" },
+  { url: "https://www.youtube.com/watch?v=OC08Vbinydo", title: "Research reference: the lives of city pigeons" },
+  { url: "https://www.youtube.com/watch?v=TCxPI8OUk9U", title: "Research reference: pigeons and urban environments" },
+  { url: "https://youtu.be/rgeKNf52Py0?si=x8EBR9AnrtwPBlXj", title: "Research reference: understanding pigeons" }
+]} />
+
+Pigeons have their own reasons for liking these places. This idea became *Coogle Maps*: a map where pigeons can leave their own reviews.
+
+To generate each review, I collected more open data about the environment around a complaint location. Nearby restaurants, trash cans, buildings, parks, common places, coffee shops, benches, and fountains provide the context for each pigeon’s comment.
+
+<LinkCardGroup items={[
+  { url: "https://data.cityofnewyork.us/d/43nn-pn8j", title: "Restaurant Inspection Results", description: "Restaurant locations and inspection records from NYC Open Data.", site: "data.cityofnewyork.us" },
+  { url: "https://data.cityofnewyork.us/d/8znf-7b2c", title: "DSNY Litter Basket Inventory", description: "Public litter basket locations used as environmental context.", site: "data.cityofnewyork.us" },
+  { url: "https://data.cityofnewyork.us/d/64uk-42ks", title: "Primary Land Use Tax Lot Output", description: "Building and land-use information from NYC Open Data.", site: "data.cityofnewyork.us" },
+  { url: "https://data.cityofnewyork.us/d/enfh-gkve", title: "Parks Properties", description: "Locations and information for New York City parks.", site: "data.cityofnewyork.us" },
+  { url: "https://data.cityofnewyork.us/d/t95h-5fsr", title: "CommonPlace", description: "Additional public-place information used in the map.", site: "data.cityofnewyork.us" },
+  { url: "https://overpass-api.de/", title: "Overpass API", description: "OpenStreetMap data for coffee shops, benches, and fountains.", site: "overpass-api.de" }
+]} />
+
+## Mapbox, Point Clouds, and WebGL
+
+### Point-Cloud Landscape
+
+I chose a point cloud because I like its visual style. My master’s thesis in digital design explores 3D Gaussian Splatting and non-photorealistic rendering. A point cloud also keeps the map abstract and allows the pigeons to stand out.
+
+<Link text="View the watercolor-style point-cloud reference" href="https://sketchfab.com/3d-models/watercolor-style-sketching-with-point-cloud-6949373156ac4509819f10166b77b91f" />
+
+### Mapbox Vector Tiles
+
+At first, I considered NYC LiDAR point clouds, NYC 3D mesh models, OpenStreetMap, and Mapbox as geometry sources. Because the project needed to run in a web browser and only required a simple visual language, I selected Mapbox. Its vector tiles provide geographic features such as buildings, roads, parks, and water. I can render these features as points and control their colors and positions.
+
+<LinkCardGroup items={[
+  { url: "https://docs.mapbox.com/data/tilesets/guides/vector-tiles-introduction/", title: "Vector Tiles Introduction", description: "Mapbox documentation about vector tile structure and use.", site: "docs.mapbox.com" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/coogle-maps/02-mapbox-style.png", alt: "The Mapbox style editor showing map layers and colors.", caption: "Editing the Mapbox base style" },
+  { src: "/images/blogs/coogle-maps/03-mapbox-point-cloud.png", alt: "A point-cloud map of Manhattan with green land and blue water.", caption: "Rendering Mapbox vector features as points" }
+]} />
+
+### Animated Pigeons in WebGL
+
+I used a 3D pigeon model because I wanted pigeons to walk around the map. I reused the model from an earlier study and used a sine function to move each pigeon’s body gently up and down.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/coogle-maps/04-webgl-map.png", alt: "A WebGL point-cloud street map viewed in perspective.", caption: "Initial WebGL map" },
+  { src: "/images/blogs/coogle-maps/05-random-point-test.png", alt: "A point-cloud test with a white circular opening and green points.", caption: "Testing random point placement" },
+  { src: "/images/blogs/coogle-maps/06-pigeon-mask-test.png", alt: "A pigeon-shaped white mask surrounded by green and gray map points.", caption: "Creating space for a pigeon shape" },
+  { src: "/images/blogs/coogle-maps/07-pigeon-point-test.png", alt: "A pigeon shape represented with green points on the map.", caption: "Filling the pigeon silhouette with points" }
+]} />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/coogle-maps/08-fast-pigeon.gif", alt: "A pigeon animation moving quickly across the point-cloud map.", caption: "Fast movement test" },
+  { src: "/images/blogs/coogle-maps/09-slow-pigeon.gif", alt: "A pigeon animation moving slowly across the point-cloud map.", caption: "Slower movement test" },
+  { src: "/images/blogs/coogle-maps/10-smooth-pigeon.gif", alt: "Several pigeons moving smoothly across the point-cloud map.", caption: "Smooth walking animation" },
+  { src: "/images/blogs/coogle-maps/11-stepped-pigeon.gif", alt: "Several pigeons moving with a stepped walking rhythm.", caption: "Stepped walking animation" }
+]} />
+
+## Generating Pigeon Reviews with a Codex Skill
+
+I wrote a reusable `pigeon-map-comment-writer` skill to define how the pigeon reviews should be written. GPT-5 produced 3,630 individual reviews through this system instead of receiving a separate prompt for every location.
+
+The current version asks for natural B1–B2 spoken English, one short sentence before a pigeon name, varied personalities and emotional tones, realistic urban pigeon behavior, and careful use of the supplied location data. It also prevents unsupported places, dates, facilities, or local conditions from being added. Every output must use valid JSON.
+
+```json
+{
+  "id": "c-27_-52",
+  "comments": [
+    {
+      "text": "I patrol near Chipotle because fast food means fast pecking -- Zippy",
+      "persona": "hyper teenage pigeon",
+      "uses": ["c-27_-52-4"]
+    }
+  ],
+  "model": "gpt-5",
+  "prompt_version": "v2"
+}
+```
+
+<ImageBox src="/images/blogs/coogle-maps/12-generated-review.png" alt="A map pop-up showing a generated pigeon review near a landmark." caption="A generated review connected to local building data" />
+
+## Landmarks and Complaint Locations
+
+Small black pins show familiar tourist landmarks and help viewers understand their position. Colored pins identify the twenty locations with the most pigeon complaints and display pigeon-style explanations.
+
+<ImageBox src="/images/blogs/coogle-maps/13-landmark-overview.png" alt="The Coogle Maps interface showing pigeons, landmarks, and colored complaint pins across a point-cloud map." caption="Overview of landmarks and high-complaint locations" />
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/coogle-maps/14-landmark-pin.png", alt: "A colored complaint marker surrounded by pigeons on the map.", caption: "A high-complaint location" },
+  { src: "/images/blogs/coogle-maps/15-park-pin.png", alt: "A park label and pigeons shown on the point-cloud map.", caption: "A park location with a pigeon review" }
+]} />
+
+<ImageBox src="/images/blogs/coogle-maps/16-color-palette.png" alt="A four-color palette with red, green, yellow, and brown tones." caption="Color palette used for map markers and interface elements" />
+
+## Data and Sound
+
+The interaction combines the visual map with a pigeon sound effect and the collected urban datasets.
+
+<Link text="Listen to the pigeon sound source on Freesound" href="https://freesound.org/people/Forpus_Prod/sounds/391323/" />
+
+<ImageBox src="/images/blogs/coogle-maps/17-data-layers.gif" alt="An animated overview of the data layers used in Coogle Maps." caption="Datasets and map layers used in the project" />
+
+## Development Process
+
+I first built a simple p5.js prototype and prepared the initial map references. Claude then revised the prototype and implemented most of the remaining technical details based on my directions and feedback.

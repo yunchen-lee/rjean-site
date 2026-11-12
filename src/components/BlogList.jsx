@@ -41,7 +41,7 @@ export default function BlogList({ posts }) {
           <RectangleCard
             key={post.id ?? idx}
             title={post.data.title}
-            img={post.data.cover}
+            img={post.data.previewCover ?? post.data.cover}
             desc={post.data.description}
             url={`/blog/${post.id}`}
             target="_self"

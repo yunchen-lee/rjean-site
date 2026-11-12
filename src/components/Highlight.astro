@@ -1,0 +1,15 @@
+---
+interface Props { title?: string; content?: string; theme?: "black" | "gray"; }
+const { title = "", content = "", theme = "gray" } = Astro.props;
+---
+
+<aside class:list={["highlight not-prose", `highlight--${theme}`]}>
+  <span aria-hidden="true">✦</span>
+  <div>{title && <strong>{title}</strong>} {content}<slot /></div>
+</aside>
+
+<style>
+  .highlight { display: flex; gap: .75rem; margin: 1.5rem 0; padding: 1rem 1.15rem; line-height: 1.6; }
+  .highlight--gray { background: var(--color-placeholder); color: inherit; }
+  .highlight--black { background: #111; color: #fff; }
+</style>

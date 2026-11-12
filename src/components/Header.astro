@@ -92,12 +92,16 @@ const activeRoute = currentPath.startsWith("/workshops")
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     font-weight: 700;
-    padding: 1rem 0;
+    padding: 1rem 0 0.5rem;
     gap: 1rem;
     align-items: start;
   }
   header a.current {
     pointer-events: none;
+  }
+  header :global(.oh) {
+    padding-bottom: 0.1em;
+    margin-bottom: -0.1em;
   }
   h1 {
     font-size: 1rem;

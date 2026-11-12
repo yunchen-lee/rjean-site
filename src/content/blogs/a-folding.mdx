@@ -1,0 +1,2437 @@
+---
+title: "A Folding: Simulating Paper Folds in p5.js"
+description: "This article presents a two-dimensional paper-folding simulation built with p5.js. The system represents a sheet of paper as a polygon and defines each folding line with two points. A cross product is used to determine which side of the line each vertex belongs to. When a folding line crosses a polygon, the system splits the polygon and reflects the vertices on the folding side across the line. To support repeated folds, the system also tracks the active paper pieces, allowing one fold to affect multiple layers. Finally, the study makes an initial exploration of using an evolution strategy to generate different folding patterns. This process shows how basic geometry can support procedural paper folding and pattern generation."
+tags: ["p5.js", "Computational Design", "Folding"]
+date: 2026-09-29
+state: "Published"
+cover:
+  src: "/images/blogs/a-folding/cover.gif"
+  alt: "An animated digital paper folding experiment."
+---
+
+<TableOfContents />
+
+<hr />
+
+# A Folding: Simulating Paper Folds in p5.js
+
+本文介紹一個使用 p5.js 建立的二維紙張摺疊模擬系統。系統將紙張表示為多邊形，並使用兩個點定義摺線。透過叉積，系統可以判斷每個頂點位於摺線的哪一側。當摺線穿過多邊形時，系統會分割多邊形，並將摺疊側的頂點鏡射到摺線另一側。為了支援連續摺疊，系統也會追蹤目前有效的紙張圖形，讓一次摺疊可以影響多個圖層。最後，本研究初步探索如何使用演化策略產生不同的摺疊圖樣。這個過程展示了基本幾何方法如何應用於程序式紙張摺疊與圖樣生成。
+
+This article presents a two-dimensional paper-folding simulation built with p5.js. The system represents a sheet of paper as a polygon and defines each folding line with two points. A cross product is used to determine which side of the line each vertex belongs to. When a folding line crosses a polygon, the system splits the polygon and reflects the vertices on the folding side across the line. To support repeated folds, the system also tracks the active paper pieces, allowing one fold to affect multiple layers. Finally, the study makes an initial exploration of using an evolution strategy to generate different folding patterns. This process shows how basic geometry can support procedural paper folding and pattern generation.
+
+<hr />
+
+## Creating a Digital Paper
+
+I started by representing a sheet of paper as a polygon made of vertices in p5.js.
+
+<ImageBox src="/images/blogs/a-folding/01-digital-paper.png" alt="A gray digital sheet of paper on a black canvas." />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+    }
+
+    setup() {
+        let pts = [];
+        let row = int(this.w / this.resolution);
+        let col = int(this.h / this.resolution);
+
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + i * this.resolution;
+            let py = this.y;
+            pts.push(createVector(px, py));
+        }
+
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.w + this.x;
+            let py = this.y + (i + 1) * this.resolution;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + this.w - i * this.resolution;
+            let py = this.h + this.y;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.x;
+            let py = this.y + this.h - (i + 1) * this.resolution;
+            pts.push(createVector(px, py))
+        }
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.forEach(piece => {
+            piece.draw();
+        })
+    }
+
+}
+```
+</Collapsible>
+
+    
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/02-digital-paper-outline.png", alt: "The first digital paper outline." },
+  { src: "/images/blogs/a-folding/03-digital-paper-outline.png", alt: "A second digital paper outline." }
+]} />
+
+---
+
+## Defining a Folding Line
+
+used two points to define a folding line and the cross product to determine which side each vertex belongs to.
+
+<LinkCardGroup items={[
+  { url: "https://stackoverflow.com/questions/1560492/how-to-tell-whether-a-point-is-to-the-right-or-left-side-of-a-line", title: "How to tell whether a point is to the right or left side of a line", description: "A cross-product method for classifying points relative to a line.", site: "stackoverflow.com" },
+  { url: "https://en.wikipedia.org/wiki/Cross_product", title: "Cross product", description: "Background on the vector operation used in the folding test.", site: "wikipedia.org" }
+]} />
+
+```jsx
+public bool isLeft(Point a, Point b, Point c) {
+  return (b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x) > 0;
+}
+```
+
+<ImageBox src="/images/blogs/a-folding/04-fold-line.png" alt="A folding line dividing the digital paper." />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+        let row = int(this.w / this.resolution);
+        let col = int(this.h / this.resolution);
+
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + i * this.resolution;
+            let py = this.y;
+            pts.push(createVector(px, py));
+        }
+
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.w + this.x;
+            let py = this.y + (i + 1) * this.resolution;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + this.w - i * this.resolution;
+            let py = this.h + this.y;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.x;
+            let py = this.y + this.h - (i + 1) * this.resolution;
+            pts.push(createVector(px, py))
+        }
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+        let piece = random(this.paperPieces);
+        let index1 = Math.floor(Math.random() * piece.vertices.length);
+        let index2;
+
+        do {
+            index2 = Math.floor(Math.random() * piece.vertices.length);
+        } while (index1 === index2);
+
+        this.foldingStartPt = piece.vertices[index1];
+        this.foldingEndPt = piece.vertices[index2];
+
+        // console.log(this.foldingStartPt, this.foldingEndPt)
+
+        piece.vertices.forEach(v => {
+            push();
+            translate(v.x, v.y);
+            fill(255);
+            if (this.isLeft(this.foldingStartPt, this.foldingEndPt, v)) fill(255, 0, 0);
+            circle(0, 0, 3);
+            pop();
+        })
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+}
+```
+</Collapsible>
+
+    
+
+<ImageGrid columns={3} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/05-fold-line-a.png", alt: "A test folding line crossing the paper." },
+  { src: "/images/blogs/a-folding/06-fold-line-b.png", alt: "A second test folding line." },
+  { src: "/images/blogs/a-folding/07-fold-line-c.png", alt: "A third test folding line." }
+]} />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+        let row = int(this.w / this.resolution);
+        let col = int(this.h / this.resolution);
+
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + i * this.resolution;
+            let py = this.y;
+            pts.push(createVector(px, py));
+        }
+
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.w + this.x;
+            let py = this.y + (i + 1) * this.resolution;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + this.w - i * this.resolution;
+            let py = this.h + this.y;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.x;
+            let py = this.y + this.h - (i + 1) * this.resolution;
+            pts.push(createVector(px, py))
+        }
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+
+        this.temp = [];
+
+        let piece = random(this.paperPieces);
+        let index1 = Math.floor(Math.random() * piece.vertices.length);
+        let index2;
+
+        do {
+            index2 = Math.floor(Math.random() * piece.vertices.length);
+        } while (index1 === index2);
+
+        this.foldingStartPt = piece.vertices[index1];
+        this.foldingEndPt = piece.vertices[index2];
+
+        // console.log(this.foldingStartPt, this.foldingEndPt)
+
+        piece.vertices.forEach(v => {
+            push();
+
+            fill(255);
+            if (this.isLeft(this.foldingStartPt, this.foldingEndPt, v)) {
+                fill(255, 0, 0);
+                let relected = this.reflectByTwoPoints(this.foldingStartPt, this.foldingEndPt, v);
+                circle(relected.x, relected.y, 3);
+            }
+            circle(v.x, v.y, 3);
+            pop();
+        })
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+}
+```
+</Collapsible>
+
+    
+
+---
+
+## Reflecting Points
+
+I applied a mathematical reflection to move vertices across the folding line.
+
+<IframeCardGroup items={[{ url: "https://www.youtube.com/watch?v=SD_qew7vOtw", title: "Linear Algebra: Reflection in any Linear Line" }]} />
+
+https://www.omnicalculator.com/math/line-equation-from-two-points
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/08-reflection.png", alt: "Geometry used to reflect a point across a line." },
+  { src: "/images/blogs/a-folding/09-reflection-result.png", alt: "A reflected paper vertex." }
+]} />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+        let row = int(this.w / this.resolution);
+        let col = int(this.h / this.resolution);
+
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + i * this.resolution;
+            let py = this.y;
+            pts.push(createVector(px, py));
+        }
+
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.w + this.x;
+            let py = this.y + (i + 1) * this.resolution;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < row + 1; i++) {
+            let px = this.x + this.w - i * this.resolution;
+            let py = this.h + this.y;
+            pts.push(createVector(px, py));
+        }
+        for (let i = 0; i < col - 1; i++) {
+            let px = this.x;
+            let py = this.y + this.h - (i + 1) * this.resolution;
+            pts.push(createVector(px, py))
+        }
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+
+        this.temp = [];
+
+        let piece = random(this.paperPieces);
+        let index1 = Math.floor(Math.random() * piece.vertices.length);
+        let index2;
+
+        do {
+            index2 = Math.floor(Math.random() * piece.vertices.length);
+        } while (index1 === index2);
+
+        this.foldingStartPt = piece.vertices[index1];
+        this.foldingEndPt = piece.vertices[index2];
+
+        // console.log(this.foldingStartPt, this.foldingEndPt)
+
+        piece.vertices.forEach(v => {
+            push();
+
+            fill(255);
+            if (this.isLeft(this.foldingStartPt, this.foldingEndPt, v)) {
+                fill(255, 0, 0);
+                let relected = this.reflectByTwoPoints(this.foldingStartPt, this.foldingEndPt, v);
+                circle(relected.x, relected.y, 3);
+            }
+            circle(v.x, v.y, 3);
+            pop();
+        })
+
+        let newPts = this.addLine(this.foldingStartPt, this.foldingEndPt);
+        console.log(newPts)
+        newPts.forEach(n => {
+            push();
+            fill(255, 255, 0);
+            circle(n.x, n.y, 3);
+            pop();
+        })
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+
+    addLine(a, b) {
+        let pts = [];
+        let move = createVector(a.x - b.x, a.y - b.y);
+        let d = move.mag();
+
+        move.normalize();
+        move.mult(this.resolution);
+        let count = int(d / this.resolution);
+        for (let i = 1; i < count; i++) {
+            let px = a.x - move.x * i;
+            let py = a.y - move.y * i;
+            pts.push(createVector(px, py));
+        }
+        return pts;
+    }
+}
+```
+</Collapsible>
+
+    
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/10-reflection-a.png", alt: "The first reflected polygon result." },
+  { src: "/images/blogs/a-folding/11-reflection-b.png", alt: "The second reflected polygon result." }
+]} />
+
+---
+
+## Simplifying the Paper Geometry
+
+At first, I used many vertices to represent the paper, but they were difficult to manage during folding. So I simplified the geometry by keeping only key points, such as corners and intersections.
+
+<ImageBox src="/images/blogs/a-folding/12-simplified-paper.png" alt="A simplified paper polygon using only key vertices." />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+        this.parent = args.parent;
+        this.childs = [];
+        this.status = true;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+
+        pts.push(createVector(this.x, this.y));
+        pts.push(createVector(this.x + this.w, this.y));
+        pts.push(createVector(this.x + this.w, this.y + this.h));
+        pts.push(createVector(this.x, this.y + this.h));
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.filter(piece => piece.status == true).forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    // foldPaper() {
+
+    //     this.temp = [];
+
+    //     let piece = random(this.paperPieces);
+    //     let index1 = Math.floor(Math.random() * piece.vertices.length);
+    //     let index2;
+
+    //     do {
+    //         index2 = Math.floor(Math.random() * piece.vertices.length);
+    //     } while (index1 === index2);
+
+    //     this.foldingStartPt = piece.vertices[index1];
+    //     this.foldingEndPt = piece.vertices[index2];
+
+    //     // console.log(this.foldingStartPt, this.foldingEndPt)
+
+    //     let ptsRight = [];
+    //     let ptsLeft = [];
+    //     piece.vertices.forEach(v => {
+    //         push();
+
+    //         fill(255);
+    //         if (this.isLeft(this.foldingStartPt, this.foldingEndPt, v)) {
+    //             fill(255, 0, 0);
+    //             let relected = this.reflectByTwoPoints(this.foldingStartPt, this.foldingEndPt, v);
+    //             ptsLeft.push(relected);
+    //             circle(relected.x, relected.y, 3);
+    //         } else {
+    //             ptsRight.push(v);
+    //         }
+    //         circle(v.x, v.y, 3);
+    //         pop();
+    //     })
+
+    //     let newPts = this.addLine(this.foldingStartPt, this.foldingEndPt);
+    //     // console.log(newPts);
+    //     newPts.forEach(n => {
+    //         push();
+    //         fill(255, 255, 0);
+    //         circle(n.x, n.y, 3);
+    //         pop();
+    //     })
+
+    //     // console.log(this.paperPieces.indexOf(piece));
+    //     let idx = this.paperPieces.indexOf(piece);
+    //     this.paperPieces[idx].status = false;
+
+    //     let childLeft = new PaperPiece({
+    //         parent: idx,
+    //         vertices: ptsLeft.concat(this.getCrease(ptsLeft, newPts)),
+    //     })
+
+    //     this.paperPieces.push(childLeft);
+
+    // }
+
+    foldPaper() {
+
+        this.temp = [];
+        let piece = random(this.paperPieces);
+
+        // random fold line for testing
+        this.foldingStartPt = createVector(
+            random(this.x, this.x + this.w),
+            this.y
+        );
+
+        this.foldingEndPt = createVector(
+            random(this.x, this.x + this.w),
+            this.y + this.h
+        );
+
+        let ptsRight = [];
+        let ptsLeft = [];
+        let intersectionPts = [];
+
+        // find intersections
+        for (let i = 0; i < piece.vertices.length; i++) {
+
+            let current = piece.vertices[i];
+            let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+            let intersection = this.getIntersection(
+                current,
+                next,
+                this.foldingStartPt,
+                this.foldingEndPt
+            );
+
+            if (intersection) {
+                intersectionPts.push(intersection);
+            }
+        }
+
+        // separate points
+        piece.vertices.forEach(v => {
+
+            push();
+            fill(255);
+
+            if (this.isLeft(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    v
+                )) {
+                fill(255, 0, 0);
+                let reflected = this.reflectByTwoPoints(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    v
+                );
+                ptsLeft.push(reflected);
+                circle(reflected.x, reflected.y, 5);
+            } else {
+                ptsRight.push(v);
+            }
+            circle(v.x, v.y, 5);
+            pop();
+        })
+
+        // draw intersection points
+        intersectionPts.forEach(n => {
+            push();
+            fill(255, 255, 0);
+            circle(n.x, n.y, 8);
+            pop();
+        })
+
+        // console.log(intersectionPts);
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+
+    addLine(a, b) {
+        let pts = [];
+        let move = createVector(a.x - b.x, a.y - b.y);
+        let d = move.mag();
+
+        move.normalize();
+        move.mult(this.resolution);
+        let count = int(d / this.resolution);
+        for (let i = 0; i < count + 1; i++) {
+            let px = a.x - move.x * i;
+            let py = a.y - move.y * i;
+            pts.push(createVector(px, py));
+        }
+        return pts;
+    }
+
+    getCrease(originalPts, newPts) {
+        let d1 = dist(originalPts[0].x, originalPts[0].y, newPts[0].x, newPts[0].y)
+        let d2 = dist(originalPts[originalPts.length - 1].x, originalPts[originalPts.length - 1].y, newPts[0].x, newPts[0].y)
+
+        if (d1 < d2) {
+            newPts.reverse();
+        }
+        return newPts;
+    }
+
+    getIntersection(a, b, c, d) {
+
+        let denominator =
+            (a.x - b.x) * (c.y - d.y) -
+            (a.y - b.y) * (c.x - d.x);
+
+        if (denominator == 0) {
+            return null;
+        }
+
+        let t =
+            ((a.x - c.x) * (c.y - d.y) -
+                (a.y - c.y) * (c.x - d.x)) /
+            denominator;
+
+        let u = -((a.x - b.x) * (a.y - c.y) -
+                (a.y - b.y) * (a.x - c.x)) /
+            denominator;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+
+            let px = a.x + t * (b.x - a.x);
+            let py = a.y + t * (b.y - a.y);
+
+            return createVector(px, py);
+        }
+
+        return null;
+    }
+}
+```
+</Collapsible>
+
+    
+
+### Simulating the First Fold
+
+<ImageBox src="/images/blogs/a-folding/13-first-fold.png" alt="The geometry of the first simulated fold." />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+        this.parent = args.parent;
+        this.childs = [];
+        this.status = true;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+
+        pts.push(createVector(this.x, this.y));
+        pts.push(createVector(this.x + this.w, this.y));
+        pts.push(createVector(this.x + this.w, this.y + this.h));
+        pts.push(createVector(this.x, this.y + this.h));
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.filter(piece => piece.status == true).forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    // foldPaper() {
+
+    //     this.temp = [];
+
+    //     let piece = random(this.paperPieces);
+    //     let index1 = Math.floor(Math.random() * piece.vertices.length);
+    //     let index2;
+
+    //     do {
+    //         index2 = Math.floor(Math.random() * piece.vertices.length);
+    //     } while (index1 === index2);
+
+    //     this.foldingStartPt = piece.vertices[index1];
+    //     this.foldingEndPt = piece.vertices[index2];
+
+    //     // console.log(this.foldingStartPt, this.foldingEndPt)
+
+    //     let ptsRight = [];
+    //     let ptsLeft = [];
+    //     piece.vertices.forEach(v => {
+    //         push();
+
+    //         fill(255);
+    //         if (this.isLeft(this.foldingStartPt, this.foldingEndPt, v)) {
+    //             fill(255, 0, 0);
+    //             let relected = this.reflectByTwoPoints(this.foldingStartPt, this.foldingEndPt, v);
+    //             ptsLeft.push(relected);
+    //             circle(relected.x, relected.y, 3);
+    //         } else {
+    //             ptsRight.push(v);
+    //         }
+    //         circle(v.x, v.y, 3);
+    //         pop();
+    //     })
+
+    //     let newPts = this.addLine(this.foldingStartPt, this.foldingEndPt);
+    //     // console.log(newPts);
+    //     newPts.forEach(n => {
+    //         push();
+    //         fill(255, 255, 0);
+    //         circle(n.x, n.y, 3);
+    //         pop();
+    //     })
+
+    //     // console.log(this.paperPieces.indexOf(piece));
+    //     let idx = this.paperPieces.indexOf(piece);
+    //     this.paperPieces[idx].status = false;
+
+    //     let childLeft = new PaperPiece({
+    //         parent: idx,
+    //         vertices: ptsLeft.concat(this.getCrease(ptsLeft, newPts)),
+    //     })
+
+    //     this.paperPieces.push(childLeft);
+
+    // }
+
+    foldPaper() {
+
+        this.temp = [];
+        let piece = random(this.paperPieces);
+
+        // random fold line for testing
+        this.foldingStartPt = createVector(
+            random(this.x, this.x + this.w),
+            this.y
+        );
+
+        this.foldingEndPt = createVector(
+            random(this.x, this.x + this.w),
+            this.y + this.h
+        );
+
+        // let ptsRight = [];
+        // let ptsLeft = [];
+        // let intersectionPts = [];
+
+        // find intersections
+        // for (let i = 0; i < piece.vertices.length; i++) {
+
+        //     let current = piece.vertices[i];
+        //     let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+        //     let intersection = this.getIntersection(
+        //         current,
+        //         next,
+        //         this.foldingStartPt,
+        //         this.foldingEndPt
+        //     );
+
+        //     if (intersection) {
+        //         intersectionPts.push(intersection);
+        //     }
+        // }
+
+        // separate points
+        // piece.vertices.forEach(v => {
+
+        //     push();
+        //     fill(255);
+
+        //     if (this.isLeft(
+        //             this.foldingStartPt,
+        //             this.foldingEndPt,
+        //             v
+        //         )) {
+        //         fill(255, 0, 0);
+        //         let reflected = this.reflectByTwoPoints(
+        //             this.foldingStartPt,
+        //             this.foldingEndPt,
+        //             v
+        //         );
+        //         ptsLeft.push(reflected);
+        //         circle(reflected.x, reflected.y, 5);
+        //     } else {
+        //         ptsRight.push(v);
+        //     }
+        //     circle(v.x, v.y, 5);
+        //     pop();
+        // })
+
+        // draw intersection points
+        // intersectionPts.forEach(n => {
+        //     push();
+        //     fill(255, 255, 0);
+        //     circle(n.x, n.y, 8);
+        //     pop();
+        // })
+
+        let foldMode = random(["RIGHT", "LEFT"])
+            // console.log(intersectionPts);
+        let result = this.splitPiece(
+            piece,
+            this.foldingStartPt,
+            this.foldingEndPt,
+            foldMode
+        );
+
+        // console.log(result.left);
+        // console.log(result.right);
+
+        let idx = this.paperPieces.indexOf(piece);
+        this.paperPieces[idx].status = false;
+
+        let childLeft = new PaperPiece({
+            parent: idx,
+            vertices: result.left,
+        })
+        this.paperPieces.push(childLeft);
+
+        let childRight = new PaperPiece({
+            parent: idx,
+            vertices: result.right,
+        })
+        this.paperPieces.push(childRight);
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+
+    addLine(a, b) {
+        let pts = [];
+        let move = createVector(a.x - b.x, a.y - b.y);
+        let d = move.mag();
+
+        move.normalize();
+        move.mult(this.resolution);
+        let count = int(d / this.resolution);
+        for (let i = 0; i < count + 1; i++) {
+            let px = a.x - move.x * i;
+            let py = a.y - move.y * i;
+            pts.push(createVector(px, py));
+        }
+        return pts;
+    }
+
+    getCrease(originalPts, newPts) {
+        let d1 = dist(originalPts[0].x, originalPts[0].y, newPts[0].x, newPts[0].y)
+        let d2 = dist(originalPts[originalPts.length - 1].x, originalPts[originalPts.length - 1].y, newPts[0].x, newPts[0].y)
+
+        if (d1 < d2) {
+            newPts.reverse();
+        }
+        return newPts;
+    }
+
+    getIntersection(a, b, c, d) {
+
+        let denominator =
+            (a.x - b.x) * (c.y - d.y) -
+            (a.y - b.y) * (c.x - d.x);
+
+        if (denominator == 0) {
+            return null;
+        }
+
+        let t =
+            ((a.x - c.x) * (c.y - d.y) -
+                (a.y - c.y) * (c.x - d.x)) /
+            denominator;
+
+        let u = -((a.x - b.x) * (a.y - c.y) -
+                (a.y - b.y) * (a.x - c.x)) /
+            denominator;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+
+            let px = a.x + t * (b.x - a.x);
+            let py = a.y + t * (b.y - a.y);
+
+            return createVector(px, py);
+        }
+
+        return null;
+    }
+
+    splitPiece(piece, a, b, foldMode) {
+
+        let ptsLeft = [];
+        let ptsRight = [];
+
+        for (let i = 0; i < piece.vertices.length; i++) {
+
+            let current = piece.vertices[i];
+            let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+            let currentLeft = this.isLeft(a, b, current);
+            let nextLeft = this.isLeft(a, b, next);
+
+            // add current point
+            if (foldMode == "LEFT") {
+                if (currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsLeft.push(reflected);
+                } else {
+                    ptsRight.push(current.copy());
+                }
+            } else {
+                if (!currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsRight.push(reflected);
+                } else {
+                    ptsLeft.push(current.copy());
+                }
+            }
+
+            // edge crosses fold line
+            if (currentLeft !== nextLeft) {
+
+                let intersection = this.getIntersection(
+                    current,
+                    next,
+                    a,
+                    b
+                );
+
+                if (intersection) {
+                    ptsLeft.push(intersection.copy());
+                    ptsRight.push(intersection.copy());
+                }
+            }
+        }
+
+        return {
+            left: ptsLeft,
+            right: ptsRight
+        };
+    }
+}
+```
+</Collapsible>
+
+    
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/15-first-fold.gif", alt: "Animation of the first paper fold." },
+  { src: "/images/blogs/a-folding/16-second-fold.gif", alt: "Animation of a second paper fold." }
+]} />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+function setup() {
+    createCanvas(800, 800);
+    background(0);
+    blendMode(SCREEN);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    paper.foldPaper();
+    paper.foldPaper();
+    paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+        this.parent = args.parent;
+        this.childs = [];
+        this.status = true;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+
+        pts.push(createVector(this.x, this.y));
+        pts.push(createVector(this.x + this.w, this.y));
+        pts.push(createVector(this.x + this.w, this.y + this.h));
+        pts.push(createVector(this.x, this.y + this.h));
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+    }
+
+    draw() {
+        // this.pts.forEach(p => {
+        //     push();
+        //     translate(p.x, p.y);
+        //     fill(255);
+        //     noStroke();
+        //     circle(0, 0, 2);
+        //     pop();
+        // })
+
+        this.paperPieces.filter(piece => piece.status == true).forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+
+        this.temp = [];
+        let piece = random(this.paperPieces);
+
+        let foundFoldingLine = false;
+        // // random fold line for testing
+        while (!foundFoldingLine) {
+            this.foldingStartPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y
+            );
+
+            this.foldingEndPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y + this.h
+            );
+
+            if (this.checkIntersection(this.foldingStartPt, this.foldingEndPt, piece.vertices)) { foundFoldingLine = true }
+        }
+
+        // console.log(this.checkIntersection(this.foldingStartPt, this.foldingEndPt, piece.vertices));
+
+        // let ptsRight = [];
+        // let ptsLeft = [];
+        // let intersectionPts = [];
+
+        // find intersections
+        // for (let i = 0; i < piece.vertices.length; i++) {
+
+        //     let current = piece.vertices[i];
+        //     let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+        //     let intersection = this.getIntersection(
+        //         current,
+        //         next,
+        //         this.foldingStartPt,
+        //         this.foldingEndPt
+        //     );
+
+        //     if (intersection) {
+        //         intersectionPts.push(intersection);
+        //     }
+        // }
+
+        // separate points
+        // piece.vertices.forEach(v => {
+
+        //     push();
+        //     fill(255);
+
+        //     if (this.isLeft(
+        //             this.foldingStartPt,
+        //             this.foldingEndPt,
+        //             v
+        //         )) {
+        //         fill(255, 0, 0);
+        //         let reflected = this.reflectByTwoPoints(
+        //             this.foldingStartPt,
+        //             this.foldingEndPt,
+        //             v
+        //         );
+        //         ptsLeft.push(reflected);
+        //         circle(reflected.x, reflected.y, 5);
+        //     } else {
+        //         ptsRight.push(v);
+        //     }
+        //     circle(v.x, v.y, 5);
+        //     pop();
+        // })
+
+        // draw intersection points
+        // intersectionPts.forEach(n => {
+        //     push();
+        //     fill(255, 255, 0);
+        //     circle(n.x, n.y, 8);
+        //     pop();
+        // })
+
+        let foldMode = random(["RIGHT", "LEFT"])
+            // console.log(intersectionPts);
+        let result = this.splitPiece(
+            piece,
+            this.foldingStartPt,
+            this.foldingEndPt,
+            foldMode
+        );
+
+        // console.log(result.left);
+        // console.log(result.right);
+
+        let idx = this.paperPieces.indexOf(piece);
+        this.paperPieces[idx].status = false;
+
+        let childLeft = new PaperPiece({
+            parent: idx,
+            vertices: result.left,
+        })
+        this.paperPieces.push(childLeft);
+
+        let childRight = new PaperPiece({
+            parent: idx,
+            vertices: result.right,
+        })
+        this.paperPieces.push(childRight);
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+
+    addLine(a, b) {
+        let pts = [];
+        let move = createVector(a.x - b.x, a.y - b.y);
+        let d = move.mag();
+
+        move.normalize();
+        move.mult(this.resolution);
+        let count = int(d / this.resolution);
+        for (let i = 0; i < count + 1; i++) {
+            let px = a.x - move.x * i;
+            let py = a.y - move.y * i;
+            pts.push(createVector(px, py));
+        }
+        return pts;
+    }
+
+    getCrease(originalPts, newPts) {
+        let d1 = dist(originalPts[0].x, originalPts[0].y, newPts[0].x, newPts[0].y)
+        let d2 = dist(originalPts[originalPts.length - 1].x, originalPts[originalPts.length - 1].y, newPts[0].x, newPts[0].y)
+
+        if (d1 < d2) {
+            newPts.reverse();
+        }
+        return newPts;
+    }
+
+    getIntersection(a, b, c, d) {
+
+        let denominator =
+            (a.x - b.x) * (c.y - d.y) -
+            (a.y - b.y) * (c.x - d.x);
+
+        if (denominator == 0) {
+            return null;
+        }
+
+        let t =
+            ((a.x - c.x) * (c.y - d.y) -
+                (a.y - c.y) * (c.x - d.x)) /
+            denominator;
+
+        let u = -((a.x - b.x) * (a.y - c.y) -
+                (a.y - b.y) * (a.x - c.x)) /
+            denominator;
+
+        if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
+
+            let px = a.x + t * (b.x - a.x);
+            let py = a.y + t * (b.y - a.y);
+
+            return createVector(px, py);
+        }
+
+        return null;
+    }
+
+    splitPiece(piece, a, b, foldMode) {
+
+        let ptsLeft = [];
+        let ptsRight = [];
+
+        for (let i = 0; i < piece.vertices.length; i++) {
+
+            let current = piece.vertices[i];
+            let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+            let currentLeft = this.isLeft(a, b, current);
+            let nextLeft = this.isLeft(a, b, next);
+
+            // add current point
+            if (foldMode == "LEFT") {
+                if (currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsLeft.push(reflected);
+                } else {
+                    ptsRight.push(current.copy());
+                }
+            } else {
+                if (!currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsRight.push(reflected);
+                } else {
+                    ptsLeft.push(current.copy());
+                }
+            }
+
+            // edge crosses fold line
+            if (currentLeft !== nextLeft) {
+
+                let intersection = this.getIntersection(
+                    current,
+                    next,
+                    a,
+                    b
+                );
+
+                if (intersection) {
+                    ptsLeft.push(intersection.copy());
+                    ptsRight.push(intersection.copy());
+                }
+            }
+        }
+
+        return {
+            left: ptsLeft,
+            right: ptsRight
+        };
+    }
+
+    checkIntersection(a, b, pts) {
+        // let ifIntersect = false;
+        let ifIntersect = []
+        pts.forEach(p => {
+            ifIntersect.push(this.isLeft(a, b, p));
+        })
+        console.log(ifIntersect)
+        let allRight = ifIntersect.every(val => val == false);
+        let allLeft = ifIntersect.every(val => val == true)
+        if (allRight || allLeft) return false;
+        return true;
+
+    }
+}
+```
+</Collapsible>
+
+    
+
+### Folding Multiple Layers
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/a-folding/17-two-folds.gif", alt: "Animation of folding two layers." },
+  { src: "/images/blogs/a-folding/18-three-folds.gif", alt: "Animation of folding three layers." }
+]} />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+async function setup() {
+    createCanvas(800, 800);
+    background(0);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    // paper.foldPaper();
+
+    for (let i = 0; i < 2; i++) {
+
+        paper.foldPaper();
+
+        blendMode(BLEND);
+        background(0);
+        blendMode(SCREEN);
+        paper.draw();
+
+        await sleep(500);
+    }
+    // paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+        this.parent = args.parent;
+        this.childs = [];
+        this.status = true;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+
+        pts.push(createVector(this.x, this.y));
+        pts.push(createVector(this.x + this.w, this.y));
+        pts.push(createVector(this.x + this.w, this.y + this.h));
+        pts.push(createVector(this.x, this.y + this.h));
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+    }
+
+    draw() {
+        this.paperPieces.filter(piece => piece.status == true).forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+
+        this.temp = [];
+
+        let piece = random(this.paperPieces.filter(p => p.status == true));
+
+        let validLine = false;
+        // // random fold line for testing
+        while (!validLine) {
+            this.foldingStartPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y
+            );
+
+            this.foldingEndPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y + this.h
+            );
+
+            if (this.checkIntersection(this.foldingStartPt, this.foldingEndPt, piece.vertices)) { validLine = true }
+        }
+
+        let foldMode = random(["RIGHT", "LEFT"])
+
+        let idx = this.paperPieces.indexOf(piece);
+
+        // get selected piece + siblings + childs
+        let foldGroup = this.getFoldGroup(idx);
+
+        // only keep active pieces
+        foldGroup = foldGroup.filter(i => this.paperPieces[i].status == true);
+
+        // console.log("foldGroup:", foldGroup);
+
+        foldGroup.forEach(i => {
+
+            let targetPiece = this.paperPieces[i];
+
+            // only split pieces that the fold line crosses
+            if (this.checkIntersection(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    targetPiece.vertices
+                )) {
+
+                let result = this.splitPiece(
+                    targetPiece,
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    foldMode
+                );
+
+                // parent becomes inactive
+                targetPiece.status = false;
+
+                // left child
+                let childLeft = new PaperPiece({
+                    parent: i,
+                    vertices: result.left,
+                });
+
+                this.paperPieces.push(childLeft);
+
+                let leftIdx = this.paperPieces.length - 1;
+                targetPiece.childs.push(leftIdx);
+
+                // right child
+                let childRight = new PaperPiece({
+                    parent: i,
+                    vertices: result.right,
+                });
+
+                this.paperPieces.push(childRight);
+
+                let rightIdx = this.paperPieces.length - 1;
+                targetPiece.childs.push(rightIdx);
+            }
+            //*---
+            // piece not crossed but entirely on the folding side -> reflect whole piece
+            else {
+                let onFoldSide = this.isLeft(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    targetPiece.vertices[0]
+                ) == (foldMode == "LEFT");
+
+                if (onFoldSide) {
+                    targetPiece.vertices = targetPiece.vertices.map(v =>
+                        this.reflectByTwoPoints(
+                            this.foldingStartPt,
+                            this.foldingEndPt,
+                            v.copy()
+                        )
+                    );
+                }
+            }
+            //*---
+        });
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        let a = (p2.y - p1.y) / (p2.x - p1.x);
+        let b = p1.y - a * p1.x;
+        let px = input.x * (1 - pow(a, 2)) / (1 + pow(a, 2)) + (input.y - b) * (2 * a) / (pow(a, 2) + 1);
+        let py = input.x * (2 * a) / (pow(a, 2) + 1) + (input.y - b) * (pow(a, 2) - 1) / (pow(a, 2) + 1) + b;
+        return createVector(px, py);
+    }
+
+    getIntersection(a, b, c, d) {
+
+        let denominator =
+            (a.x - b.x) * (c.y - d.y) -
+            (a.y - b.y) * (c.x - d.x);
+
+        if (denominator == 0) {
+            return null;
+        }
+
+        let t =
+            ((a.x - c.x) * (c.y - d.y) -
+                (a.y - c.y) * (c.x - d.x)) /
+            denominator;
+
+        if (t >= 0 && t <= 1) {
+
+            let px = a.x + t * (b.x - a.x);
+            let py = a.y + t * (b.y - a.y);
+
+            return createVector(px, py);
+        }
+
+        return null;
+    }
+
+    splitPiece(piece, a, b, foldMode) {
+
+        let ptsLeft = [];
+        let ptsRight = [];
+
+        for (let i = 0; i < piece.vertices.length; i++) {
+
+            let current = piece.vertices[i];
+            let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+            let currentLeft = this.isLeft(a, b, current);
+            let nextLeft = this.isLeft(a, b, next);
+
+            // add current point
+            if (foldMode == "LEFT") {
+                if (currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsLeft.push(reflected);
+                } else {
+                    ptsRight.push(current.copy());
+                }
+            } else {
+                if (!currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsRight.push(reflected);
+                } else {
+                    ptsLeft.push(current.copy());
+                }
+            }
+
+            // edge crosses fold line
+            if (currentLeft !== nextLeft) {
+
+                let intersection = this.getIntersection(
+                    current,
+                    next,
+                    a,
+                    b
+                );
+
+                if (intersection) {
+                    ptsLeft.push(intersection.copy());
+                    ptsRight.push(intersection.copy());
+                }
+            }
+        }
+
+        return {
+            left: ptsLeft,
+            right: ptsRight
+        };
+    }
+
+    checkIntersection(a, b, pts) {
+        // let ifIntersect = false;
+        let ifIntersect = []
+        pts.forEach(p => {
+                ifIntersect.push(this.isLeft(a, b, p));
+            })
+            // console.log(ifIntersect)
+        let allRight = ifIntersect.every(val => val == false);
+        let allLeft = ifIntersect.every(val => val == true)
+        if (allRight || allLeft) return false;
+        return true;
+
+    }
+
+    getChilds(idx) {
+        let result = [];
+        let piece = this.paperPieces[idx];
+
+        piece.childs.forEach(childIndex => {
+            result.push(childIndex);
+            let sub = this.getChilds(childIndex);
+            result.push(...sub);
+        });
+
+        return result;
+    }
+
+    getSiblings(idx) {
+        let piece = this.paperPieces[idx];
+        if (piece.parent == undefined) {
+            return [idx];
+        }
+        return this.paperPieces[piece.parent].childs;
+    }
+
+    getFoldGroup(idx) {
+        let group = [];
+        let siblings = this.getSiblings(idx);
+
+        siblings.forEach(siblingIndex => {
+            group.push(siblingIndex);
+            let descendants = this.getChilds(siblingIndex);
+            group.push(...descendants);
+        });
+
+        return [...new Set(group)];
+    }
+}
+```
+</Collapsible>
+
+    
+
+<ImageBox src="/images/blogs/a-folding/19-ten-folds.gif" alt="Animation of ten repeated paper folds." />
+
+<Collapsible title="code">
+```jsx
+let paper;
+
+async function setup() {
+    createCanvas(800, 800);
+    background(0);
+
+    paper = new Paper({
+        x: 100,
+        y: 100,
+        w: 600,
+        h: 600
+    })
+    paper.setup();
+    // paper.foldPaper();
+
+    for (let i = 0; i < 10; i++) {
+
+        paper.foldPaper();
+
+        blendMode(BLEND);
+        background(0);
+        blendMode(SCREEN);
+        paper.draw();
+
+        await sleep(500);
+        // save('myCanvas.jpg');
+    }
+    // paper.draw();
+
+    noStroke();
+
+}
+
+function draw() {}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+class PaperPiece {
+    constructor(args) {
+        this.vertices = args.vertices;
+        this.clr = args.clr || 100;
+        this.parent = args.parent;
+        this.childs = [];
+        this.status = true;
+    }
+
+    draw() {
+        fill(this.clr);
+        beginShape();
+        this.vertices.forEach(v => {
+            vertex(v.x, v.y);
+        })
+        endShape(CLOSE);
+    }
+}
+
+class Paper {
+    constructor(args) {
+        this.x = args.x;
+        this.y = args.y;
+        this.w = args.w;
+        this.h = args.h;
+        this.paperPieces = [];
+        this.resolution = 5;
+
+        // folding
+        this.foldingStartPt;
+        this.foldingEndPt;
+    }
+
+    setup() {
+        let pts = [];
+
+        pts.push(createVector(this.x, this.y));
+        pts.push(createVector(this.x + this.w, this.y));
+        pts.push(createVector(this.x + this.w, this.y + this.h));
+        pts.push(createVector(this.x, this.y + this.h));
+
+        let piece = new PaperPiece({
+            vertices: pts
+        })
+
+        this.paperPieces.push(piece);
+    }
+
+    draw() {
+        this.paperPieces.filter(piece => piece.status == true).forEach(piece => {
+            piece.draw();
+        })
+    }
+
+    foldPaper() {
+
+        this.temp = [];
+
+        let piece = random(this.paperPieces.filter(p => p.status == true));
+
+        let validLine = false;
+        // // random fold line for testing
+        while (!validLine) {
+            this.foldingStartPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y
+            );
+
+            this.foldingEndPt = createVector(
+                random(this.x, this.x + this.w),
+                this.y + this.h
+            );
+
+            if (this.checkIntersection(this.foldingStartPt, this.foldingEndPt, piece.vertices)) { validLine = true }
+        }
+
+        let foldMode = random(["RIGHT", "LEFT"])
+
+        // a real fold goes through every layer, so fold all active pieces
+        // (siblings + childs only covers everything up to the 2nd fold)
+        let foldGroup = this.paperPieces
+            .map((_, i) => i)
+            .filter(i => this.paperPieces[i].status == true);
+
+        // console.log("foldGroup:", foldGroup);
+
+        foldGroup.forEach(i => {
+
+            let targetPiece = this.paperPieces[i];
+
+            // only split pieces that the fold line crosses
+            if (this.checkIntersection(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    targetPiece.vertices
+                )) {
+
+                let result = this.splitPiece(
+                    targetPiece,
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    foldMode
+                );
+
+                // parent becomes inactive
+                targetPiece.status = false;
+
+                // left child
+                let childLeft = new PaperPiece({
+                    parent: i,
+                    vertices: result.left,
+                });
+
+                this.paperPieces.push(childLeft);
+
+                let leftIdx = this.paperPieces.length - 1;
+                targetPiece.childs.push(leftIdx);
+
+                // right child
+                let childRight = new PaperPiece({
+                    parent: i,
+                    vertices: result.right,
+                });
+
+                this.paperPieces.push(childRight);
+
+                let rightIdx = this.paperPieces.length - 1;
+                targetPiece.childs.push(rightIdx);
+            }
+            //*---
+            // piece not crossed but entirely on the folding side -> reflect whole piece
+            else {
+                let onFoldSide = this.isLeft(
+                    this.foldingStartPt,
+                    this.foldingEndPt,
+                    targetPiece.vertices[0]
+                ) == (foldMode == "LEFT");
+
+                if (onFoldSide) {
+                    targetPiece.vertices = targetPiece.vertices.map(v =>
+                        this.reflectByTwoPoints(
+                            this.foldingStartPt,
+                            this.foldingEndPt,
+                            v.copy()
+                        )
+                    );
+                }
+            }
+            //*---
+        });
+
+    }
+
+    isLeft(a, b, c) {
+        return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0;
+    }
+
+    reflectByTwoPoints(p1, p2, input) {
+        // vector form, also works for vertical fold lines (slope = Infinity)
+        let d = p5.Vector.sub(p2, p1).normalize();
+        let v = p5.Vector.sub(input, p1);
+        let proj = p5.Vector.mult(d, v.dot(d));
+        return p5.Vector.add(p1, proj).mult(2).sub(p1).sub(v);
+    }
+
+    getIntersection(a, b, c, d) {
+
+        let denominator =
+            (a.x - b.x) * (c.y - d.y) -
+            (a.y - b.y) * (c.x - d.x);
+
+        if (denominator == 0) {
+            return null;
+        }
+
+        let t =
+            ((a.x - c.x) * (c.y - d.y) -
+                (a.y - c.y) * (c.x - d.x)) /
+            denominator;
+
+        if (t >= 0 && t <= 1) {
+
+            let px = a.x + t * (b.x - a.x);
+            let py = a.y + t * (b.y - a.y);
+
+            return createVector(px, py);
+        }
+
+        return null;
+    }
+
+    splitPiece(piece, a, b, foldMode) {
+
+        let ptsLeft = [];
+        let ptsRight = [];
+
+        for (let i = 0; i < piece.vertices.length; i++) {
+
+            let current = piece.vertices[i];
+            let next = piece.vertices[(i + 1) % piece.vertices.length];
+
+            let currentLeft = this.isLeft(a, b, current);
+            let nextLeft = this.isLeft(a, b, next);
+
+            // add current point
+            if (foldMode == "LEFT") {
+                if (currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsLeft.push(reflected);
+                } else {
+                    ptsRight.push(current.copy());
+                }
+            } else {
+                if (!currentLeft) {
+                    let reflected = this.reflectByTwoPoints(
+                        this.foldingStartPt,
+                        this.foldingEndPt,
+                        current.copy()
+                    );
+                    ptsRight.push(reflected);
+                } else {
+                    ptsLeft.push(current.copy());
+                }
+            }
+
+            // edge crosses fold line
+            if (currentLeft !== nextLeft) {
+
+                let intersection = this.getIntersection(
+                    current,
+                    next,
+                    a,
+                    b
+                );
+
+                if (intersection) {
+                    ptsLeft.push(intersection.copy());
+                    ptsRight.push(intersection.copy());
+                }
+            }
+        }
+
+        return {
+            left: ptsLeft,
+            right: ptsRight
+        };
+    }
+
+    checkIntersection(a, b, pts) {
+        // let ifIntersect = false;
+        let ifIntersect = []
+        pts.forEach(p => {
+                ifIntersect.push(this.isLeft(a, b, p));
+            })
+            // console.log(ifIntersect)
+        let allRight = ifIntersect.every(val => val == false);
+        let allLeft = ifIntersect.every(val => val == true)
+        if (allRight || allLeft) return false;
+        return true;
+
+    }
+
+    getChilds(idx) {
+        let result = [];
+        let piece = this.paperPieces[idx];
+
+        piece.childs.forEach(childIndex => {
+            result.push(childIndex);
+            let sub = this.getChilds(childIndex);
+            result.push(...sub);
+        });
+
+        return result;
+    }
+
+    getSiblings(idx) {
+        let piece = this.paperPieces[idx];
+        if (piece.parent == undefined) {
+            return [idx];
+        }
+        return this.paperPieces[piece.parent].childs;
+    }
+
+    getFoldGroup(idx) {
+        let group = [];
+        let siblings = this.getSiblings(idx);
+
+        siblings.forEach(siblingIndex => {
+            group.push(siblingIndex);
+            let descendants = this.getChilds(siblingIndex);
+            group.push(...descendants);
+        });
+
+        return [...new Set(group)];
+    }
+}
+```
+</Collapsible>
+
+    
+
+---
+
+## Generating Folding Patterns
+
+### Evolution Strategy
+
+<ImageBox src="/images/blogs/a-folding/14-evolution-strategy.png" alt="Notes describing an evolution strategy." />
+
+## pseudocode
+
+[9.4: Genetic Algorithm: Looking at Code - The Nature of Code](https://www.youtube.com/watch?v=-jv3CgDN9sc)
+
+https://algorithmafternoon.com/strategies/mu_plus_lambda_evolution_strategy/
+
+[Evolution Strategry (ES) - Part 1 - Introduction to Evolution Strategy](https://www.youtube.com/watch?v=MlZUI2OHGh0)
+
+```jsx
+sketch.js (358 lines)
+├─ setup()          Creates a Paper, folds it 10 times using a for loop,
+│                   and calls draw() + sleep() after each fold
+├─ draw()           Empty
+├─ sleep()
+├─ class PaperPiece
+│   ├─ vertices, clr, parent, childs, status
+│   └─ draw()
+└─ class Paper
+    ├─ x, y, w, h, paperPieces[], resolution (unused),
+    │   foldingStartPt/EndPt
+    ├─ setup()              Creates a rectangular paper piece
+    ├─ draw()               Draws all pieces with status == true
+    ├─ foldPaper()          Randomly selects a folding line and direction.
+    │                       Splits and reflects intersected pieces,
+    │                       and reflects entire pieces on the folding side.
+    ├─ splitPiece()         Splits and reflects a piece
+    │                       (⚠ Uses this.foldingStartPt internally
+    │                       instead of parameters a and b)
+    ├─ reflectByTwoPoints() / isLeft() / getIntersection()
+    │   / checkIntersection()   Geometry utility functions
+    └─ getChilds() / getSiblings() / getFoldGroup()
+                               No longer called
+```
+
+<ImageBox src="/images/blogs/a-folding/20-evolution-result.gif" alt="Animation of a folding pattern generated with an evolution strategy." />

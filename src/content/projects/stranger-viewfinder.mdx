@@ -1,0 +1,97 @@
+---
+title: "Stranger Viewfinder"
+subTitle: "Affordance X Stranger Interaction"
+tags: ["Interaction Design", "Physical Computing", "Public Installation", "Shared Perspective", "ESP32"]
+date: 2026-09-24
+cover:
+    src: "/images/projects/stranger-viewfinder/cover.jpg"
+    alt: "A red cardboard binocular prototype installed at the Wollman Rink Overlook in Central Park."
+status: "Published"
+visible: true
+---
+
+<hr />
+
+# Stranger Viewfinder
+
+*Stranger Viewfinder* is a pair of interactive binoculars designed for the Wollman Rink Overlook in Central Park. During our site observation, we found that visitors shared the same public space but focused on different views, including the sports courts, skyline, friends, phones, and passing strangers. This led us to ask how two people might exchange what they see.
+
+Each binocular can rotate and tilt like a public viewing device. An ESP32 camera sends a live view through Wi-Fi to the display inside the other binocular, while a rotation sensor records its viewing direction. An on-screen icon shows where the other device is pointing. Through this system, one eye sees the surrounding space while the other receives another person’s view. The project explores how physical computing and shared vision can create moments of curiosity and connection between strangers.
+
+Developed by T-Shape Ciabatta: Tinyi Hsu and Yun-Chen Lee.
+
+<hr />
+
+## Location and Observation
+
+We selected the Wollman Rink Overlook in Central Park. The overlook is not only a passage. Tables, railings, food, sports activities, and the skyline encourage visitors to stop and spend time there.
+
+![Site overview of the Wollman Rink Overlook in Central Park](/images/projects/stranger-viewfinder/01-location.png)
+
+![Diagram comparing people who pass through the overlook with people who stay](/images/projects/stranger-viewfinder/02-site-behavior.png)
+
+During our observation, we noticed that visitors looked at many different things. Some watched the sports courts, while others focused on friends, family members, phones, laptops, or people passing through the area. Although people shared the same location, they did not necessarily share what they were seeing.
+
+![Field observations of different looking behaviors at the overlook](/images/projects/stranger-viewfinder/03-observation.png)
+
+## Sharing What We See
+
+This observation led to the main question: **Can an interaction allow strangers to share what they see?**
+
+Binoculars naturally invite people to approach, look through them, rotate them, and explore distant views. We therefore designed two connected binoculars that exchange visual information. Instead of receiving only one view, each participant can become curious about where the other person is looking.
+
+![Concept diagram showing two visitors exchanging views through connected binoculars](/images/projects/stranger-viewfinder/04-sharing-view.png)
+
+## System Design
+
+The system combines three parts: object design, mechatronics, and interaction design.
+
+### Object Design
+
+Cardboard supported fast prototyping and allowed us to modify the form during development. Glue and paper towels created a harder surface, screws strengthened the structure, and paint gave the binoculars a visible and playful appearance. Like public binoculars, each object can rotate horizontally and tilt vertically.
+
+![Object design diagram showing the cardboard structure, rotation, tilt, screws, and painted surface](/images/projects/stranger-viewfinder/05-object-design.png)
+
+### Mechatronics
+
+An ESP32 camera acts as the camera and controller. It sends live video through Wi-Fi to the display inside the other binocular. A rotation sensor detects the orientation of each device, allowing the system to exchange both the live image and its viewing direction.
+
+![Mechatronics diagram showing the camera, display, Wi-Fi connection, and rotation sensor](/images/projects/stranger-viewfinder/06-mechatronics.png)
+
+### Interaction Design
+
+The final interaction focuses on connection and sharing. Eyelashes were added to the shorter binocular so that the two objects appear as a pair. A small arrow icon on the display shows the direction of the other binocular.
+
+When one participant rotates a binocular, the other participant receives the changing live view and sees the direction icon move at the same time. One eye observes the surrounding space directly, while the other receives the view of another person.
+
+![Interaction design diagram showing the paired binocular characters and orientation interface](/images/projects/stranger-viewfinder/07-interaction-design.png)
+
+![Animated live-view exchange and orientation interface inside the connected binocular](/images/projects/stranger-viewfinder/08-interaction-demo.gif)
+
+## Prototype and Field Test
+
+The physical prototype combines the cardboard viewing body with the camera, display, sensors, and rotation structure.
+
+![Close view of the physical Stranger Viewfinder prototype](/images/projects/stranger-viewfinder/08-prototype.png)
+
+We installed the two binoculars at the Wollman Rink Overlook and observed how visitors approached and used them. The installation created opportunities for visitors to look through the devices, compare perspectives, and talk with nearby people.
+
+![The paired Stranger Viewfinder prototypes installed beside the overlook railing](/images/projects/stranger-viewfinder/09-field-installation.png)
+
+![Live camera view and orientation icons inside the binocular display](/images/projects/stranger-viewfinder/10-live-view.png)
+
+![A visitor looking through one of the binoculars during the field test](/images/projects/stranger-viewfinder/11-field-test-a.png)
+
+![Visitors using the two connected binoculars at the same time](/images/projects/stranger-viewfinder/12-field-test-b.png)
+
+![The binocular prototype viewed against the Central Park landscape](/images/projects/stranger-viewfinder/13-field-test-c.png)
+
+## Reflection
+
+The direct interaction between two strangers was sometimes limited. However, the installation encouraged other forms of sharing. Visitors discussed the project in groups, introduced the experience to companions, passed it to the next person, and developed unexpected ways of using the objects.
+
+![Reflection on group discussion, sharing with companions, passing the experience forward, and unexpected use](/images/projects/stranger-viewfinder/14-reflection.png)
+
+We also found that people were sometimes more willing to help or interact during transportation and assembly than during the planned installation. This suggests a future direction: the structure could become easier to carry and assemble, allowing strangers to participate before the formal interaction begins.
+
+![An unexpected interaction with the prototypes during transportation](/images/projects/stranger-viewfinder/15-unexpected-finding.png)
