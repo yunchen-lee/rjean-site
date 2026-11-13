@@ -10,7 +10,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
     markdown: {
         shikiConfig: {
-            theme: 'github-light'
+            theme: 'github-dark'
         }
     },
     vite: {

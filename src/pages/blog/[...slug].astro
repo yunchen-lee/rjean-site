@@ -69,7 +69,7 @@ const components = {
     <div class="lg:mt-6 hero-content grid gap-6 grid-cols-1 lg:grid-cols-5 gap-4">
     
       <div class="col-span-1"></div>
-      <div class="lg:col-span-4 my-2 flex flex-col">
+      <div class="article-column lg:col-span-4 my-2 flex flex-col">
         <img
             src={page.data.cover.src}
             alt={page.data.cover.alt}
@@ -138,9 +138,21 @@ const components = {
     }
   }
 
-  .blog-article :global(pre),
-  .blog-article :global(pre code) {
-    background-color: #fff !important;
+  /* Long code blocks must scroll inside the article instead of widening the
+     mobile viewport. Without these min-width resets, flex/grid items use the
+     code block's intrinsic width and the browser makes the page look zoomed out. */
+  .hero-content,
+  .article-column,
+  .blog-article {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .blog-article :global(.collapsible),
+  .blog-article :global(.collapsible__content),
+  .blog-article :global(pre) {
+    min-width: 0;
+    max-width: 100%;
   }
 
   .blog-article :global(hr) {

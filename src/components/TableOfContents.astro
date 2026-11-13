@@ -50,8 +50,16 @@ const { title = "Contents" } = Astro.props;
   .table-of-contents { margin: 1.5rem 0 3rem; padding: 1rem 1.15rem; border-bottom: 1px solid var(--border-color); background: var(--color-placeholder); }
   .table-of-contents p { margin: 0 0 .65rem; font-size: .78rem; font-weight: 600; }
   .table-of-contents ol { display: grid; gap: .35rem; margin: 0; padding: 0; list-style: none; }
-  .table-of-contents li { line-height: 1.4; }
-  .table-of-contents .is-child { padding-left: 1.25rem; }
-  .table-of-contents a { color: var(--color-text-alt); font-size: .78rem; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
-  .table-of-contents a:hover { color: var(--color-text); }
+  .table-of-contents :global(li) { line-height: 1.4; }
+  .table-of-contents :global(.is-child) { padding-left: 1.25rem; }
+  .table-of-contents :global(a) {
+    display: inline-block;
+    width: fit-content;
+    color: var(--color-text-alt);
+    font-size: .78rem;
+    line-height: 1.35;
+    text-decoration: none;
+    border-bottom: 1px solid currentColor;
+  }
+  .table-of-contents :global(a:hover) { color: var(--color-text); }
 </style>
