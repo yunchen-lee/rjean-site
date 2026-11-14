@@ -14,14 +14,15 @@ const activeRoute = currentPath.startsWith("/workshops")
         : null;
 ---
 
-<header>
-  <h1>
-    <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
-      <TextSlider content=" (¦3[▓▓]=) RJean Lee" />
-    </a>
-  </h1>
-  <span><TextSlider content="" /></span>
-  <ul class="desktop-nav">
+<div class="site-header" data-scroll-header>
+  <header>
+    <h1>
+      <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
+        <TextSlider content=" (¦3[▓▓]=) RJean Lee" />
+      </a>
+    </h1>
+    <span><TextSlider content="" /></span>
+    <ul class="desktop-nav">
     <li>
       <a
         href="/"
@@ -58,35 +59,106 @@ const activeRoute = currentPath.startsWith("/workshops")
         <TextSlider content="CV" />
       </a>
     </li>
-  </ul>
-  <details class="mobile-menu">
-    <summary aria-label="Open navigation menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </summary>
-    <nav aria-label="Main navigation">
-      <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
-        Projects
-      </a>
-      <a href="/blog/" class={activeRoute === "Blog" ? "current" : ""}>
-        Blog
-      </a>
-      <a
-        href="/workshops/"
-        class={activeRoute === "Workshops" ? "current" : ""}
-      >
-        Workshops
-      </a>
-      <a href="/cv/" class={activeRoute === "CV" ? "current" : ""}>
-        CV
-      </a>
-    </nav>
-  </details>
-</header>
-<Separator />
+    </ul>
+    <details class="mobile-menu">
+      <summary aria-label="Open navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </summary>
+      <nav aria-label="Main navigation">
+        <a href="/" class={activeRoute === "Projects" ? "current" : ""}>
+          Projects
+        </a>
+        <a href="/blog/" class={activeRoute === "Blog" ? "current" : ""}>
+          Blog
+        </a>
+        <a
+          href="/workshops/"
+          class={activeRoute === "Workshops" ? "current" : ""}
+        >
+          Workshops
+        </a>
+        <a href="/cv/" class={activeRoute === "CV" ? "current" : ""}>
+          CV
+        </a>
+      </nav>
+    </details>
+  </header>
+  <Separator />
+</div>
+
+<script>
+  let removeScrollHeaderListener: (() => void) | undefined;
+
+  const initScrollHeader = () => {
+    removeScrollHeaderListener?.();
+
+    const scrollHeader = document.querySelector<HTMLElement>("[data-scroll-header]");
+    if (!scrollHeader) return;
+
+    let previousY = window.scrollY;
+    let ticking = false;
+    const controller = new AbortController();
+
+    const setVisibility = (visible: boolean) => {
+      scrollHeader.classList.toggle("is-hidden", !visible);
+      scrollHeader.inert = !visible;
+      if (!visible) {
+        scrollHeader.querySelector<HTMLDetailsElement>(".mobile-menu")?.removeAttribute("open");
+      }
+    };
+
+    const updateHeader = () => {
+      const currentY = Math.max(window.scrollY, 0);
+      const movement = currentY - previousY;
+
+      if (currentY <= 8) {
+        setVisibility(true);
+      } else if (movement < -2) {
+        setVisibility(true);
+      } else if (movement > 2) {
+        setVisibility(false);
+      }
+
+      previousY = currentY;
+      ticking = false;
+    };
+
+    window.addEventListener("scroll", () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader);
+        ticking = true;
+      }
+    }, { passive: true, signal: controller.signal });
+
+    setVisibility(window.scrollY <= 8);
+    removeScrollHeaderListener = () => controller.abort();
+  };
+
+  initScrollHeader();
+  document.addEventListener("astro:page-load", initScrollHeader);
+</script>
 
 <style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-bg);
+    transform: translateY(0);
+    transition: transform 260ms ease;
+    will-change: transform;
+  }
+  .site-header.is-hidden {
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-header {
+      transition: none;
+    }
+  }
   header {
     position: relative;
     display: grid;
@@ -95,9 +167,6 @@ const activeRoute = currentPath.startsWith("/workshops")
     padding: 1rem 0 0.5rem;
     gap: 1rem;
     align-items: start;
-  }
-  header a.current {
-    pointer-events: none;
   }
   header :global(.oh) {
     padding-bottom: 0.1em;
