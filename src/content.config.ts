@@ -51,6 +51,13 @@ const workshops = defineCollection({
       src: z.string(),
       alt: z.string(),
     }).optional(),
+    media: z.array(z.object({
+      type: z.enum(["image", "video"]).default("image"),
+      src: z.string(),
+      alt: z.string().optional(),
+      caption: z.string().optional(),
+      poster: z.string().optional(),
+    })).optional(),
     tags: z.array(z.string()),
     date: z.date(),
     state: z.string()

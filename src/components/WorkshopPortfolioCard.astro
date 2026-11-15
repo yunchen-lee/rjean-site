@@ -6,21 +6,132 @@ type Props = {
 };
 
 const { workshop } = Astro.props;
+const lightboxId = `workshop-lightbox-${workshop.id.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+const coverMedia = { type: "image" as const, ...workshop.data.cover };
+const media = [
+  coverMedia,
+  ...(workshop.data.media ?? []).filter((item) => item.src !== workshop.data.cover.src),
+];
 ---
 
 <div class="portfolio-card">
-  <img
-    src={workshop.data.cover.src}
-    alt={workshop.data.cover.alt}
-    loading="lazy"
-    decoding="async"
-    class="portfolio-card__image"
-  />
+  <button
+    class="portfolio-card__media-button"
+    type="button"
+    aria-label={`Open ${workshop.data.title} media gallery`}
+    aria-haspopup="dialog"
+    data-lightbox-open={lightboxId}
+  >
+    <img
+      src={workshop.data.cover.src}
+      alt={workshop.data.cover.alt}
+      loading="lazy"
+      decoding="async"
+      class="portfolio-card__image"
+    />
+    <span class="portfolio-card__media-count" aria-hidden="true">
+      {media.length} {media.length === 1 ? "item" : "items"}
+    </span>
+  </button>
   <div class="portfolio-card__body">
     <h2 class="portfolio-card__title">{workshop.data.title}</h2>
     <p class="portfolio-card__context">{workshop.data.context}</p>
   </div>
+
+  <dialog
+    id={lightboxId}
+    class="workshop-lightbox"
+    aria-label={`${workshop.data.title} media gallery`}
+    data-workshop-lightbox
+  >
+    <div class="workshop-lightbox__panel">
+      <button class="workshop-lightbox__close" type="button" aria-label="Close gallery" data-lightbox-close>×</button>
+
+      <div class="workshop-lightbox__stage">
+        {media.map((item, index) => (
+          <figure class="workshop-lightbox__slide" data-lightbox-slide hidden={index !== 0}>
+            {item.type === "video" ? (
+              <video controls playsinline preload="metadata" poster={item.poster}>
+                <source src={item.src} />
+              </video>
+            ) : (
+              <img src={item.src} alt={item.alt ?? ""} loading="lazy" decoding="async" />
+            )}
+            {item.caption && <figcaption>{item.caption}</figcaption>}
+          </figure>
+        ))}
+      </div>
+
+      {media.length > 1 && (
+        <>
+          <button class="workshop-lightbox__arrow workshop-lightbox__arrow--previous" type="button" aria-label="Previous media" data-lightbox-previous>←</button>
+          <button class="workshop-lightbox__arrow workshop-lightbox__arrow--next" type="button" aria-label="Next media" data-lightbox-next>→</button>
+          <p class="workshop-lightbox__counter" aria-live="polite">
+            <span data-lightbox-current>1</span> / {media.length}
+          </p>
+        </>
+      )}
+    </div>
+  </dialog>
 </div>
+
+<script>
+  const initializeWorkshopLightboxes = () => {
+    document.querySelectorAll<HTMLDialogElement>("[data-workshop-lightbox]").forEach((dialog) => {
+      if (dialog.dataset.initialized === "true") return;
+      dialog.dataset.initialized = "true";
+
+      const slides = Array.from(dialog.querySelectorAll<HTMLElement>("[data-lightbox-slide]"));
+      const currentLabel = dialog.querySelector<HTMLElement>("[data-lightbox-current]");
+      const openButton = document.querySelector<HTMLButtonElement>(`[data-lightbox-open="${dialog.id}"]`);
+      let currentIndex = 0;
+      let touchStartX = 0;
+
+      const showSlide = (nextIndex: number) => {
+        if (!slides.length) return;
+        currentIndex = (nextIndex + slides.length) % slides.length;
+        slides.forEach((slide, index) => {
+          slide.hidden = index !== currentIndex;
+          if (index !== currentIndex) slide.querySelector("video")?.pause();
+        });
+        if (currentLabel) currentLabel.textContent = String(currentIndex + 1);
+      };
+
+      const closeDialog = () => {
+        dialog.querySelectorAll("video").forEach((video) => video.pause());
+        dialog.close();
+        openButton?.focus();
+      };
+
+      openButton?.addEventListener("click", () => {
+        showSlide(0);
+        dialog.showModal();
+      });
+      dialog.querySelector("[data-lightbox-close]")?.addEventListener("click", closeDialog);
+      dialog.querySelector("[data-lightbox-previous]")?.addEventListener("click", () => showSlide(currentIndex - 1));
+      dialog.querySelector("[data-lightbox-next]")?.addEventListener("click", () => showSlide(currentIndex + 1));
+
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) closeDialog();
+      });
+      dialog.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") showSlide(currentIndex - 1);
+        if (event.key === "ArrowRight") showSlide(currentIndex + 1);
+      });
+      dialog.addEventListener("touchstart", (event) => {
+        touchStartX = event.changedTouches[0]?.clientX ?? 0;
+      }, { passive: true });
+      dialog.addEventListener("touchend", (event) => {
+        const distance = (event.changedTouches[0]?.clientX ?? touchStartX) - touchStartX;
+        if (Math.abs(distance) < 50) return;
+        showSlide(currentIndex + (distance < 0 ? 1 : -1));
+      }, { passive: true });
+    });
+  };
+
+  initializeWorkshopLightboxes();
+  document.addEventListener("astro:page-load", initializeWorkshopLightboxes);
+</script>
 
 <style>
   .portfolio-card {
@@ -29,12 +140,149 @@ const { workshop } = Astro.props;
     color: inherit;
   }
 
+  .portfolio-card__media-button {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    background: var(--color-placeholder);
+  }
+
+  .portfolio-card__media-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+  }
+
   .portfolio-card__image {
     width: 100%;
     aspect-ratio: 3 / 2;
     object-fit: cover;
     object-position: center;
     background: var(--color-placeholder);
+    transition: transform 240ms ease;
+  }
+
+  .portfolio-card__media-button:hover .portfolio-card__image {
+    transform: scale(1.015);
+  }
+
+  .portfolio-card__media-count {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 999px;
+    color: #fff;
+    background: rgb(0 0 0 / 70%);
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  .workshop-lightbox {
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: #fff;
+    background: rgb(0 0 0 / 94%);
+  }
+
+  .workshop-lightbox::backdrop {
+    background: rgb(0 0 0 / 94%);
+  }
+
+  .workshop-lightbox__panel,
+  .workshop-lightbox__stage,
+  .workshop-lightbox__slide {
+    width: 100%;
+    height: 100%;
+  }
+
+  .workshop-lightbox__slide {
+    margin: 0;
+    padding: clamp(3.5rem, 7vw, 5.5rem) clamp(1rem, 8vw, 7rem);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workshop-lightbox__slide:not([hidden]) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .workshop-lightbox__slide img,
+  .workshop-lightbox__slide video {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: calc(100vh - 9rem);
+    object-fit: contain;
+  }
+
+  .workshop-lightbox__slide figcaption {
+    max-width: 60ch;
+    color: #ddd;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .workshop-lightbox__close,
+  .workshop-lightbox__arrow {
+    position: absolute;
+    z-index: 2;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgb(0 0 0 / 45%);
+  }
+
+  .workshop-lightbox__close {
+    top: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .workshop-lightbox__arrow {
+    top: 50%;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+  }
+
+  .workshop-lightbox__arrow--previous { left: 1rem; }
+  .workshop-lightbox__arrow--next { right: 1rem; }
+
+  .workshop-lightbox__counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    margin: 0;
+    transform: translateX(-50%);
+    color: #ddd;
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 40rem) {
+    .workshop-lightbox__slide {
+      padding-inline: 0.75rem;
+    }
+
+    .workshop-lightbox__arrow {
+      top: auto;
+      bottom: 0.75rem;
+      transform: none;
+    }
   }
 
   .portfolio-card__body {
@@ -54,11 +302,7 @@ const { workshop } = Astro.props;
     color: var(--color-text-alt);
     line-height: 1.35;
     font-size: var(--font-size-card-body);
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
   }
+
 </style>
 
