@@ -12,8 +12,10 @@ const title = "RJean | About";
   <div class="text-3xl w-full font-bold mt-20 mb-5">Yun-Chen Lee / RJean</div>
 
   <div class="mb-18">
-    <div class="text-justify">
-      #Creative Technology &nbsp &nbsp #Computational Design &nbsp &nbsp #Digital Fabrication
+    <div class="cv-keywords">
+      <span>#Creative Technology</span>
+      <span>#Computational Design</span>
+      <span>#Digital Fabrication</span>
     </div>
     <FileDownload
       href="/downloads/2022-26_YunChenLee_Portfolio.pdf"
@@ -179,6 +181,24 @@ const title = "RJean | About";
 </BaseLayout>
 
 <style>
+  .cv-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    text-align: left;
+  }
+
+  .cv-keywords span {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 767px) {
+    .cv-keywords {
+      font-size: calc(1rem - 2px);
+      line-height: 1.7;
+    }
+  }
+
   .publication-link {
     text-decoration: underline !important;
     text-underline-offset: 0.2em;
