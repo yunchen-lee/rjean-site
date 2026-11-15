@@ -49,15 +49,34 @@ const media = [
 
       <div class="workshop-lightbox__stage">
         {media.map((item, index) => (
-          <figure class="workshop-lightbox__slide" data-lightbox-slide hidden={index !== 0}>
+          <figure
+            class="workshop-lightbox__slide"
+            data-lightbox-slide
+            data-media-state={item.type === "video" ? "loaded" : "loading"}
+            hidden={index !== 0}
+          >
             {item.type === "video" ? (
               <video controls playsinline preload="metadata" poster={item.poster}>
                 <source src={item.src} />
               </video>
             ) : (
-              <img src={item.src} alt={item.alt ?? ""} loading="lazy" decoding="async" />
+              <div class="workshop-lightbox__image-frame">
+                <div class="workshop-lightbox__loading" role="status" aria-label="Loading image" data-lightbox-loading>
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+                  <span aria-hidden="true"></span>
+                </div>
+                <img
+                  src={item.src}
+                  alt={item.alt ?? ""}
+                  loading="lazy"
+                  decoding="async"
+                  data-lightbox-image
+                />
+                <p class="workshop-lightbox__error" data-lightbox-error hidden>Unable to load image.</p>
+              </div>
             )}
-            {item.caption && <figcaption>{item.caption}</figcaption>}
+            {"caption" in item && item.caption && <figcaption>{item.caption}</figcaption>}
           </figure>
         ))}
       </div>
@@ -86,6 +105,26 @@ const media = [
       const openButton = document.querySelector<HTMLButtonElement>(`[data-lightbox-open="${dialog.id}"]`);
       let currentIndex = 0;
       let touchStartX = 0;
+
+      dialog.querySelectorAll<HTMLImageElement>("[data-lightbox-image]").forEach((image) => {
+        const slide = image.closest<HTMLElement>("[data-lightbox-slide]");
+        const loadingIndicator = slide?.querySelector<HTMLElement>("[data-lightbox-loading]");
+        const errorMessage = slide?.querySelector<HTMLElement>("[data-lightbox-error]");
+
+        const setMediaState = (state: "loaded" | "error") => {
+          if (!slide) return;
+          slide.dataset.mediaState = state;
+          if (loadingIndicator) loadingIndicator.hidden = true;
+          if (errorMessage) errorMessage.hidden = state !== "error";
+        };
+
+        if (image.complete) {
+          setMediaState(image.naturalWidth > 0 ? "loaded" : "error");
+        } else {
+          image.addEventListener("load", () => setMediaState("loaded"), { once: true });
+          image.addEventListener("error", () => setMediaState("error"), { once: true });
+        }
+      });
 
       const showSlide = (nextIndex: number) => {
         if (!slides.length) return;
@@ -202,6 +241,7 @@ const media = [
   }
 
   .workshop-lightbox__slide {
+    position: relative;
     margin: 0;
     padding: clamp(3.5rem, 7vw, 5.5rem) clamp(1rem, 8vw, 7rem);
     align-items: center;
@@ -221,6 +261,84 @@ const media = [
     height: auto;
     max-height: calc(100vh - 9rem);
     object-fit: contain;
+  }
+
+  .workshop-lightbox__slide img {
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+
+  .workshop-lightbox__slide[data-media-state="loaded"] img {
+    opacity: 1;
+  }
+
+  .workshop-lightbox__image-frame {
+    display: grid;
+    flex: 0 1 auto;
+    place-items: center;
+    width: 100%;
+    min-height: 12rem;
+    padding-block: clamp(2rem, 6vh, 4rem);
+  }
+
+  .workshop-lightbox__image-frame > * {
+    grid-area: 1 / 1;
+  }
+
+  .workshop-lightbox__loading {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .workshop-lightbox__loading[hidden] {
+    display: none;
+  }
+
+  .workshop-lightbox__loading span {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: currentColor;
+    animation: workshop-loading-dot 900ms ease-in-out infinite alternate;
+  }
+
+  .workshop-lightbox__loading span:nth-child(2) {
+    animation-delay: 150ms;
+  }
+
+  .workshop-lightbox__loading span:nth-child(3) {
+    animation-delay: 300ms;
+  }
+
+  .workshop-lightbox__error {
+    margin: 0;
+    color: #ddd;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  @keyframes workshop-loading-dot {
+    from {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(-0.35rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .workshop-lightbox__slide img {
+      transition: none;
+    }
+
+    .workshop-lightbox__loading span {
+      animation: none;
+    }
   }
 
   .workshop-lightbox__slide figcaption {
