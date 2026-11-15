@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import FileDownload from "../components/FileDownload.astro";
 import TimeLine from "../components/TimeLine.astro";
 
 const title = "RJean | About";
@@ -8,10 +9,17 @@ const title = "RJean | About";
 <BaseLayout title={title}>
   <div class="content content--left">
 
-  <div class="text-3xl w-full font-bold mt-20 mb-5">Yun-Chen Lee</div>
+  <div class="text-3xl w-full font-bold mt-20 mb-5">Yun-Chen Lee / RJean</div>
 
-  <div class="mb-18 text-justify">
-    #Digital Design  &nbsp &nbsp  #Creative Coding
+  <div class="mb-18">
+    <div class="text-justify">
+      #Creative Technology &nbsp &nbsp #Computational Design &nbsp &nbsp #Digital Fabrication
+    </div>
+    <FileDownload
+      href="/downloads/2022-26_YunChenLee_Portfolio.pdf"
+      title="2022-26_YunChenLee_Portfolio.pdf"
+      download="2022-26_YunChenLee_Portfolio.pdf"
+    />
   </div>
 
   <div class="mb-5">
@@ -63,19 +71,55 @@ const title = "RJean | About";
     </TimeLine>
   </div>
 
-<div class="mb-5">
+  <div class="mb-5">
     <div class="text-2xl w-full font-bold">Publication</div>
   </div>
 
   <ul class="list-disc mx-6 mb-15 grid gap-2 font-light text-sm">
     <li>
-      <a class="underline underline-offset-2" href="https://dl.acm.org/doi/10.1145/3757374.3771537" target="_blank">Lee, Y. C., & Hou, J. H. (in press). Generative Tonal Art: An Artistic Rendering Workflow using Programmable TAMs. Poster to be presented at SIGGRAPH Asia 2025, Hong Kong.</a>
+      <a class="publication-link" href="https://dl.acm.org/doi/10.1145/3757374.3771537" target="_blank">Lee, Y. C., & Hou, J. H. (in press). Generative Tonal Art: An Artistic Rendering Workflow using Programmable TAMs. Poster to be presented at SIGGRAPH Asia 2025, Hong Kong.</a>
     </li>
     <li>
-      <a class="underline underline-offset-2" href="https://link.springer.com/chapter/10.1007/978-3-031-55312-7_2" target="_blank"> Lee, Y. C., & Hou, J. H. (2023, November). Point-Based Stylization: An Interactive Rendering Approach for Non-Uniform Artistic Representation. In <i>International Conference on ArtsIT, Interactivity and Game Creation</i> (pp. 14-28). Cham: Springer Nature Switzerland.</a>
+      <a class="publication-link" href="https://link.springer.com/chapter/10.1007/978-3-031-55312-7_2" target="_blank"> Lee, Y. C., & Hou, J. H. (2023, November). Point-Based Stylization: An Interactive Rendering Approach for Non-Uniform Artistic Representation. In <i>International Conference on ArtsIT, Interactivity and Game Creation</i> (pp. 14-28). Cham: Springer Nature Switzerland.</a>
     </li>
   </ul>
 
+  <div class="mb-5">
+    <div class="text-2xl w-full font-bold">Teaching Experience</div>
+  </div>
+
+  <ul class="list-disc mx-6 mb-15 grid gap-2 font-light text-sm">
+    <li>
+      Workshop Designer, Tiny Tin House: A Hands-On Journey from Observation to Coding and Making, CCC Taiwan &nbsp|&nbsp 2026
+    </li>
+    <li>
+      Guest Instructor, Computational Design Graduate Course, NYCU GIA, National Yang Ming Chiao Tung University &nbsp|&nbsp 2025
+    </li>
+    <li>
+      Workshop Designer, Making 3D Coasters: p5.js + 3D Ink Printing, NYCU DITP, National Yang Ming Chiao Tung University &nbsp|&nbsp 2024
+    </li>
+    <li>
+      Workshop Designer, What I See: The Art of Noticing + Data Viz, NYCU DITP, National Yang Ming Chiao Tung University &nbsp|&nbsp 2025
+    </li>
+    <li>
+      Co-instructor, Algorithm Design Graduate Course, NYCU GIA, National Yang Ming Chiao Tung University &nbsp|&nbsp 2024–2025
+    </li>
+    <li>
+      Guest Instructor, Blender FOoH Lab: Turning Robotic Camera Paths into FOoH, NYCU GIA Graduate Course, National Yang Ming Chiao Tung University &nbsp|&nbsp 2024
+    </li>
+    <li>
+      Co-designer & Co-instructor, Dynamic Inflatable Creatures: Parametric Design + Digital Fabrication, Kaohsiung Museum of Fine Arts & Zhongshan Girls High School &nbsp|&nbsp 2024
+    </li>
+    <li>
+      Workshop Designer & Guest Instructor, Generative Art 101 — Two-Week Summer Course and Six-Week Collaborative Course, Tunglee Academy; Rain City and Tree Ring Guest Sessions, Zhongshan Girls High School &nbsp|&nbsp 2023
+    </li>
+    <li>
+      Workshop Facilitator, Wave in Grasshopper: Parametric Design + FBM, GIAAIL Lab Internal Sharing Workshop, National Yang Ming Chiao Tung University &nbsp|&nbsp 2022
+    </li>
+    <li>
+      Co-instructor, Parametric Design Workshop: Noise + Grasshopper, GIAAIL Lab × Zhongshan Girls High School &nbsp|&nbsp 2022
+    </li>
+  </ul>
 
   <div class="mb-5">
     <div class="text-2xl w-full font-bold">Exhibition</div>
@@ -133,3 +177,10 @@ const title = "RJean | About";
   </div> -->
   <!-- </div> -->
 </BaseLayout>
+
+<style>
+  .publication-link {
+    text-decoration: underline !important;
+    text-underline-offset: 0.2em;
+  }
+</style>

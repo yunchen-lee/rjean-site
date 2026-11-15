@@ -1,10 +1,10 @@
 ---
-interface Props { href?: string; src?: string; title: string; }
-const { href, src, title } = Astro.props;
+interface Props { href?: string; src?: string; title: string; download?: string | boolean; }
+const { href, src, title, download } = Astro.props;
 const url = href ?? src ?? "#";
 ---
 
-<a class="file-download not-prose" href={url} target="_blank" rel="noreferrer">
+<a class="file-download not-prose" href={url} target="_blank" rel="noreferrer" download={download}>
   <span aria-hidden="true">↓</span><span>{title}</span>
 </a>
 
