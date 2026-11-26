@@ -1,0 +1,143 @@
+---
+title: "Hybrid — Self-Moving Organism"
+description: "This article presents Hybrid — Self-Moving Organism, a spherical machine that combines a paper-clay shell with robotic components. Three balloons shift its center of mass to create movement, while an ESP32-C3, servo motors, air pumps, p5.js, and MQTT support manual control. The project explores how an organic surface and an internal mechanical system can work together as one moving object."
+tags: ["Physical Computing", "Soft Robotics", "ESP32", "MQTT"]
+date: 2026-11-24
+state: "Published"
+cover:
+  src: "/images/blogs/self-moving-organism/cover.jpg"
+  alt: "An open white paper-clay shell containing suspended electronic components, air tubes, and balloons."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Hybrid — Self-Moving Organism
+
+本文介紹 *Hybrid — Self-Moving Organism*，一個結合紙黏土外殼與機器人元件的球形機器。三個氣球透過不對稱充氣改變重心並產生移動，ESP32-C3、伺服馬達、氣泵、p5.js 與 MQTT 則支援手動控制。這個專案探索具有生物感的表面與內部機械系統，如何共同構成一個能夠移動的物件。
+
+This article presents *Hybrid — Self-Moving Organism*, a spherical machine that combines a paper-clay shell with robotic components. Three balloons shift its center of mass to create movement, while an ESP32-C3, servo motors, air pumps, p5.js, and MQTT support manual control. The project explores how an organic surface and an internal mechanical system can work together as one moving object.
+
+<hr />
+
+## Hybrid — Self-Moving Organism
+
+My idea is to combine an organic appearance (using paper clay) with robotic components inside to make a self-moving organism.
+
+The original idea is pretty simple. I wanted to suspend the electronic and mechanical components in the center and then use air pumps to inflate three balloons around them. When the balloons inflate asymmetrically, they shift the center of mass and make the whole ball move.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/self-moving-organism/1.jpg", alt: "A black-and-white reference sheet showing organic shells, spirals, and microscopic forms." },
+  { src: "/images/blogs/self-moving-organism/2.jpg", alt: "A hand-drawn concept sketch showing air pumps, rubber-band suspension, and asymmetric inflation around a central mechanism." }
+]} />
+
+<hr />
+
+## Result
+
+I successfully made it move, but it is still hard to control. Please see the videos below!
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/3.jpg"
+  alt="The open paper-clay organism with electronic components suspended in the center and balloons arranged around them."
+/>
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=96rkwmZ5oZE", title: "Self-moving organism test 1" }
+]} />
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=UTK5W2YOkSs", title: "Self-moving organism test 2" }
+]} />
+
+<hr />
+
+## Making the Shell
+
+Here are my steps for making the shell:
+
+Cardboard for a soccer ball structure → Paper towels + white glue to strengthen the shell → A thin layer of paper clay on the outside → Adding texture.
+
+When making the shell, I found that combining cardboard and paper towels could create a really light and strong shell.
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/4.jpg"
+  alt="Two lightweight spherical shells assembled from polygonal cardboard panels."
+/>
+
+When I tried to add paper clay to make it look like a skeleton, I found that the paper clay was too heavy and made the ball hard to roll. So I tried to make the paper clay layer really thin.
+
+For the texture, I just used some existing tools, like my pen and ruler, to create symmetrical patterns.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/self-moving-organism/5.jpg", alt: "A cardboard shell covered with paper towels and white glue." },
+  { src: "/images/blogs/self-moving-organism/6.jpg", alt: "A thin irregular sheet of white paper clay on a wooden work surface." }
+]} />
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/7.jpg"
+  alt="The white paper-clay shell decorated with repeated triangular and dotted textures."
+/>
+
+<hr />
+
+## Electronic and Mechanical Components
+
+I used an ESP32-C3 to control three servo motors and four AAA batteries to power all the components.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/self-moving-organism/8.jpg", alt: "A small electric air pump attached to a cardboard mounting plate." },
+  { src: "/images/blogs/self-moving-organism/9.jpg", alt: "A four-cell AAA battery holder mounted on a square cardboard plate." }
+]} />
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/10.jpg"
+  alt="The ESP32-C3, servo motors, wiring, air pump, and tubing assembled on a work surface."
+/>
+
+I made paper clay components and combined them with servo motors to pinch the air tubes. My idea is that when the tube is pinched, the air cannot escape, allowing the balloon to inflate. When the tube is released, the air can escape and the balloon deflates.
+
+Another thing is that I initially used only one air pump. During the process, I realized that I needed one air pump for each balloon in this prototype. But this might be something I could improve in a future version.
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/11.jpg"
+  alt="A servo motor connected to a white paper-clay mechanism that pinches a clear air tube."
+/>
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/12.jpg"
+  alt="Three servo motors arranged around the central assembly with paper-clay tube-pinching components."
+/>
+
+<hr />
+
+## Wi-Fi Control
+
+I used p5.js and MQTT to send messages to the ESP32. I first used sliders to test the angles of the servo motors. Then, I wrote a new version with two settings:
+
+- **ON — 70°:** Pinch the tube to allow the balloon to inflate.
+- **OFF — 130°:** Release the tube to allow the balloon to deflate.
+
+Each servo motor can be controlled separately.
+
+This interface is mainly for testing for now. In the future, the movement could be programmed automatically, but right now, I am still testing it manually.
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=R8BLg85KIKk", title: "Wi-Fi control test with p5.js and MQTT" }
+]} />
+
+<video controls playsinline preload="metadata" style="display: block; width: 100%; height: auto;">
+  <source src="/images/blogs/self-moving-organism/13.mov" type="video/quicktime" />
+</video>
+
+<hr />
+
+## Suspending the Components in the Center
+
+I used rubber bands to suspend the components in the center. I attached two self-tapping screws to the outer shell, passed the rubber bands through the shell, and secured them to the screws under tension to create pre-tension in the suspension system.
+
+<ImageBox
+  src="/images/blogs/self-moving-organism/14.jpg"
+  alt="The electronic and mechanical components suspended in the center of the shell with stretched rubber bands."
+/>

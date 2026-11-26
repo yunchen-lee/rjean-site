@@ -137,13 +137,6 @@ const components = {
       margin-right: 0.25rem; /* 控制和文字的間距 */
     }
 
-  @media screen and (min-width: 50em) {
-    .blog-article {
-      max-width: 55ch;
-      margin-inline: 15vw;
-    }
-  }
-
   /* Long code blocks must scroll inside the article instead of widening the
      mobile viewport. Without these min-width resets, flex/grid items use the
      code block's intrinsic width and the browser makes the page look zoomed out. */
@@ -153,6 +146,28 @@ const components = {
     width: 100%;
     min-width: 0;
     max-width: 100%;
+  }
+
+  .blog-article {
+    margin-inline: 0;
+  }
+
+  @media screen and (min-width: 64rem) {
+    .hero-content {
+      grid-template-columns: 2fr minmax(0, 50vw) 1fr;
+      column-gap: 0;
+    }
+
+    .hero-content > :first-child {
+      grid-column: 1;
+    }
+
+    .article-column {
+      grid-column: 2;
+      width: 100%;
+      max-width: none;
+      justify-self: stretch;
+    }
   }
 
   .blog-article :global(*) {

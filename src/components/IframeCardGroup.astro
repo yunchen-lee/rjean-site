@@ -1,5 +1,11 @@
 ---
-interface Item { url: string; title: string; }
+interface Item {
+  type?: "iframe" | "image";
+  url?: string;
+  src?: string;
+  alt?: string;
+  title?: string;
+}
 interface Props { items: Item[]; }
 const { items = [] } = Astro.props;
 const embedUrl = (url: string) => {
@@ -15,17 +21,25 @@ const embedUrl = (url: string) => {
 <div class:list={["iframe-grid not-prose", { "iframe-grid--multi": items.length > 1 }]}>
   {items.map((item) => (
     <figure>
-      <div class="iframe-card"><iframe src={embedUrl(item.url)} title={item.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>
+      <div class:list={["iframe-card", { "iframe-card--image": item.type === "image" }]}>
+        {item.type === "image" ? (
+          <img src={item.src} alt={item.alt ?? ""} loading="lazy" decoding="async" />
+        ) : (
+          <iframe src={embedUrl(item.url ?? "")} title={item.title} loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        )}
+      </div>
       {item.title && <figcaption>{item.title}</figcaption>}
     </figure>
   ))}
 </div>
 
 <style>
-  .iframe-grid { display: grid; gap: 1rem; margin: 1.5rem 0; }
+  .iframe-grid { display: grid; gap: 1rem; width: 100%; margin: 1.5rem 0; }
   .iframe-card { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #111; }
   .iframe-card iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  figure { margin: 0; }
+  .iframe-card--image { background: transparent; }
+  .iframe-card--image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  figure { width: 100%; margin: 0; }
   figcaption { margin-top: .5rem; color: var(--color-text-alt); font-size: .85rem; line-height: 1.4; }
   @media (min-width: 48rem) { .iframe-grid--multi { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>

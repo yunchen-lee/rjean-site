@@ -16,6 +16,6 @@ const imageSrc = typeof src === "string" ? src : src.src;
 
 <style>
   .image-box { margin: 2rem 0; }
-  .image-box img { width: 100%; max-height: 80vh; object-fit: contain; }
+  .image-box img { display: block; width: 100%; height: auto; }
   .image-box figcaption { margin-top: .65rem; color: var(--color-text-alt); font-size: calc(.85rem - 2px); text-align: left; line-height: 1.4; }
 </style>

@@ -1,0 +1,70 @@
+---
+title: "Box That Move!"
+description: "This article presents Box That Move!, a small self-moving machine shaped like a soft box. A DC motor spins an off-center gear to create vibration, while two tiny wire legs transfer the vibration to the table. The project explores how a simple mechanism can give an ordinary box a playful sense of movement."
+tags: ["Physical Computing", "Prototyping", "Kinetic Object"]
+date: 2026-10-08
+state: "Published"
+cover:
+  src: "/images/blogs/box-that-move/cover.jpg"
+  alt: "A small rust-red fabric box resting on a white surface."
+---
+
+<TableOfContents />
+
+<hr />
+
+# Box That Move!
+
+本文介紹 *Box That Move!*，一個外形像柔軟方盒的小型自走機器。直流馬達帶動偏心齒輪產生震動，兩支細小的金屬腳則將震動傳到桌面，使盒子能夠緩慢移動。這個專案探索如何用簡單的機械結構，讓一個普通的盒子產生有趣而像生物般的動態。
+
+This article presents *Box That Move!*, a small self-moving machine shaped like a soft box. A DC motor spins an off-center gear to create vibration, while two tiny wire legs transfer the vibration to the table. The project explores how a simple mechanism can give an ordinary box a playful sense of movement.
+
+<hr />
+
+## Box That Move!
+
+The idea is pretty simple. I was thinking about how to make "a box" move. Just a box, no wheels.
+
+The result looks like a plushie in the shape of a box, but it is actually a self-moving machine that can move around a little on the table using vibration.
+
+<IframeCardGroup items={[
+  { url: "https://youtu.be/fSK4cPQmfWA", title: "Box That Move! overview" },
+  { url: "https://youtu.be/9pzRFcHts04", title: "Movement test 1" },
+  { url: "https://youtu.be/pm8Bb1LnDHY", title: "Movement test 2" },
+  {
+    type: "image",
+    src: "/images/blogs/box-that-move/1.jpg",
+    alt: "The completed rust-red fabric box on a white surface."
+  }
+]} />
+
+<hr />
+
+## DC Motor + Gear
+
+To implement this self-moving box, I used one DC motor, one gear, and one AAA battery. (I initially used four batteries and realized that it was too much. The DC motor spun too fast and smelled like it was about to burn.)
+
+I drilled a hole in the gear and attached it to the DC motor slightly off-center. This offset creates vibration when the gear rotates.
+
+<ImageBox
+  src="/images/blogs/box-that-move/2.jpg"
+  alt="The inside of the cardboard box with a battery holder, DC motor, and off-center white gear."
+/>
+
+<IframeCardGroup items={[
+  { url: "https://www.youtube.com/watch?v=YwsUUa-QHQM", title: "DC motor and off-center gear test" }
+]} />
+
+<hr />
+
+## Tiny Legs
+
+Now we have vibration from the eccentric gear. I tried to transfer the vibration to the table through a pair of tiny legs. These legs stick out of the box just a little, but enough to touch the table and make the box move.
+
+<ImageGrid columns={2} aspect="auto" fit="contain" images={[
+  { src: "/images/blogs/box-that-move/3.jpg", alt: "A close view of the rust-red fabric cover and a tiny wire leg at one corner." },
+  { src: "/images/blogs/box-that-move/4.jpg", alt: "The completed fabric box viewed from above at an angle, with two tiny wire legs visible near one edge." },
+  { src: "/images/blogs/box-that-move/5.jpg", alt: "A wire leg installed along the inside wall of the cardboard box." },
+  { src: "/images/blogs/box-that-move/6.jpg", alt: "Two bent wire legs placed side by side during fabrication." },
+  { src: "/images/blogs/box-that-move/7.jpg", alt: "The wire legs protruding through narrow openings in the cardboard shell." }
+]} />
